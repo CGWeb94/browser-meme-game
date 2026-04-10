@@ -1,0 +1,5 @@
+# Auto-generated – update when known
+Domain:         [browser-meme-game.vercel.app]
+GitHub-Repo:    github.com/CGWeb94/browser-meme-game
+Vercel-Projekt: browser-meme-game
+Canonical-URL:  https://browser-meme-game.vercel.app
