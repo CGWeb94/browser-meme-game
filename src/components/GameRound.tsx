@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import PlayerList from './PlayerList';
@@ -7,12 +7,24 @@ export default function GameRound() {
   const { state, send, dispatch } = useGame();
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [jokerMode, setJokerMode] = useState(false);
+  const [playedCardAnimation, setPlayedCardAnimation] = useState<{ cardId: string; cardIndex: number } | null>(null);
+  const [justDrew, setJustDrew] = useState(false);
 
   const handleSelectCard = (cardId: string) => {
+    const cardIndex = state.hand.findIndex(c => c.id === cardId);
+    setPlayedCardAnimation({ cardId, cardIndex });
     dispatch({ type: 'SELECT_CARD', cardId });
     send('selectCard', { lobbyId: state.lobbyId!, cardId });
     setPreviewCard(null);
   };
+
+  // Cleanup animation after card is removed from hand
+  useEffect(() => {
+    if (playedCardAnimation && !state.hand.find(c => c.id === playedCardAnimation.cardId)) {
+      const timer = setTimeout(() => setPlayedCardAnimation(null), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [state.hand, playedCardAnimation]);
 
   const handleUseJoker = (cardId: string) => {
     if (state.jokersRemaining <= 0) return;
@@ -202,12 +214,48 @@ export default function GameRound() {
       )}
 
 
+      {/* Card play animation - flying card */}
+      {playedCardAnimation && (
+        <div className="fixed inset-0 pointer-events-none z-40">
+          <div
+            className="absolute animate-card-play"
+            style={{
+              left: 'calc(50% - 48px)',
+              top: 'calc(100% - 140px)',
+              animation: 'cardPlay 0.6s ease-in-out forwards',
+            }}
+          >
+            <MemeCard
+              imageIndex={state.hand.find(c => c.id === playedCardAnimation.cardId)?.imageIndex ?? 0}
+              faceDown
+              size="md"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Side: Player list */}
       <div className="fixed right-4 top-4 w-48 hidden lg:block z-10">
         <div className="card-container">
           <PlayerList players={state.players} hostId={state.hostId} currentPlayerId={state.playerId} />
         </div>
       </div>
+
+      <style>{`
+        @keyframes cardPlay {
+          0% {
+            transform: translateX(0) translateY(0) scale(1) rotateZ(0deg);
+            opacity: 1;
+          }
+          50% {
+            transform: translateX(0) translateY(-100px) scale(1.1) rotateZ(-10deg);
+          }
+          100% {
+            transform: translateX(0) translateY(-200px) scale(0.9) rotateZ(-20deg) rotateX(90deg);
+            opacity: 0.7;
+          }
+        }
+      `}</style>
     </div>
   );
 }

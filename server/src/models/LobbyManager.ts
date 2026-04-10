@@ -360,11 +360,15 @@ export class LobbyManager {
     console.log(`[VOTE] Player ${player.name} voting on card ${cardId}. PlayedCards:`,
       gs.currentRound.playedCards.map(pc => `${pc.playerId}(${pc.card.id})`).join(', '));
 
-    // Can't vote for your own card
+    // IMPORTANT: Can't vote for your own card - check both playedCards AND check if voting card belongs to this player
     const ownCard = gs.currentRound.playedCards.find(pc => pc.playerId === playerId);
-    console.log(`[VOTE] Own card check: ownCard=${ownCard ? ownCard.card.id : 'none'}, votingFor=${cardId}, isOwn=${ownCard && ownCard.card.id === cardId}`);
+    const isVotingForOwnCard = ownCard && ownCard.card.id === cardId;
 
-    if (ownCard && ownCard.card.id === cardId) {
+    console.log(`[VOTE] Own card check: ownCard=${ownCard ? ownCard.card.id : 'NONE'}, cardBeingVotedFor=${cardId}, isOwnCard=${isVotingForOwnCard}`);
+    console.log(`[VOTE] All played cards:`, gs.currentRound.playedCards.map(pc => ({ playerId: pc.playerId, cardId: pc.card.id })));
+
+    if (isVotingForOwnCard) {
+      console.error(`[VOTE ERROR] Player ${playerId} tried to vote for own card ${cardId}!`);
       throw new Error('Du kannst nicht für deine eigene Karte stimmen');
     }
 
