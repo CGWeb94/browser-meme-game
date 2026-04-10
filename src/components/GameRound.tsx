@@ -181,7 +181,7 @@ export default function GameRound() {
           disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
           title={state.jokersRemaining > 0 ? `Joker verwenden (${state.jokersRemaining} übrig)` : 'Keine Joker mehr verfügbar'}
         >
-          <img src="/joker.svg" alt="Joker" className="w-8 h-8 object-contain" />
+          <img src="/joker.svg" alt="Joker" style={{ width: '5rem', height: '7rem' }} className="object-contain" />
           <span className="text-lg">{state.jokersRemaining}</span>
         </button>
       </div>
