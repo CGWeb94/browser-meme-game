@@ -32,7 +32,7 @@
     @apply bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl;
   }
   .meme-card {
-    @apply relative w-36 h-48 rounded-xl overflow-hidden cursor-pointer
+    @apply relative w-48 h-32 rounded-xl overflow-hidden cursor-pointer
            border-2 border-gray-700 hover:border-indigo-500
            transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/20;
   }

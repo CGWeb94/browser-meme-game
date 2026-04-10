@@ -18,9 +18,9 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
   const [imgError, setImgError] = useState(false);
 
   const sizeClasses = {
-    sm: 'w-24 h-32',
-    md: 'w-36 h-48',
-    lg: 'w-44 h-56',
+    sm: 'w-32 h-20',
+    md: 'w-48 h-32',
+    lg: 'w-64 h-44',
   };
 
   // Generate a consistent color from the imageIndex
@@ -29,7 +29,7 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
   if (faceDown) {
     return (
       <div className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-indigo-800 to-purple-900 border-2 border-indigo-600 flex items-center justify-center shadow-lg`}>
-        <span className="text-4xl opacity-50">🃏</span>
+        <span className="text-3xl opacity-50">🃏</span>
       </div>
     );
   }
