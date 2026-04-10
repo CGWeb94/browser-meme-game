@@ -3,9 +3,14 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
-COPY dist/ ./dist/
+COPY tsconfig.json ./
+COPY src/ ./src/
+
+RUN npm run build
+
+RUN npm prune --production
 
 EXPOSE 8080
 
