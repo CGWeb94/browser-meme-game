@@ -7,6 +7,7 @@ interface MemeCardProps {
   faceDown?: boolean;
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -14,7 +15,7 @@ interface MemeCardProps {
  * Images are loaded from /memes/{imageIndex}.jpg
  * Falls back to a colored placeholder if the image doesn't exist.
  */
-export default function MemeCard({ imageIndex, selected, disabled, faceDown, size = 'md', onClick }: MemeCardProps) {
+export default function MemeCard({ imageIndex, selected, disabled, faceDown, size = 'md', onClick, style }: MemeCardProps) {
   const [imgError, setImgError] = useState(false);
 
   const sizeClasses = {
@@ -28,7 +29,7 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
 
   if (faceDown) {
     return (
-      <div className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-indigo-800 to-purple-900 border-2 border-indigo-600 flex items-center justify-center shadow-lg`}>
+      <div style={style} className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-indigo-800 to-purple-900 border-2 border-indigo-600 flex items-center justify-center shadow-lg`}>
         <span className="text-3xl opacity-50">🃏</span>
       </div>
     );
@@ -36,6 +37,7 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
 
   return (
     <div
+      style={style}
       className={`${sizeClasses[size]} rounded-xl overflow-hidden border-2 transition-all duration-200 flex-shrink-0
         ${selected ? 'border-indigo-500 ring-2 ring-indigo-500 scale-105 shadow-lg shadow-indigo-500/30' : 'border-gray-700'}
         ${disabled ? 'opacity-60 cursor-default' : 'cursor-pointer hover:border-indigo-400 hover:scale-105 hover:shadow-lg'}

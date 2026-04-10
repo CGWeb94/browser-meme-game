@@ -22,6 +22,35 @@ Frontend (Vercel)  ◄──── WebSocket ────►  Backend (Railway)
 browser-meme-game/
 ├── CLAUDE.md                    # Diese Datei
 ├── DEPLOYMENT.md                # Deployment-Anleitung
+├── content/meta.txt             # Projekt-Metadaten (Domain, GitHub, Vercel)
+├── package.json                 # Frontend (Vite + React + TS)
+├── vite.config.ts
+├── tsconfig.json
+├── tailwind.config.js
+├── vercel.json                  # Vercel-Deployment-Config
+├── index.html
+├── public/
+│   └── memes/                   # ← HIER BILDER ABLEGEN: 0.jpg, 1.jpg, 2.jpg, ...
+├── src/                         # Frontend-Source
+│   ├── main.tsx
+│   ├── App.tsx                  # Screen-Router
+│   ├── index.css                # Tailwind + Custom-Styles
+│   ├── types.ts                 # Shared Types (Client-seitig)
+│   ├── vite-env.d.ts
+│   ├── hooks/
+│   │   └── useWebSocket.ts      # WS-Verbindung, auto-reconnect, heartbeat
+│   ├── context/
+│   │   └── GameContext.tsx       # Zentraler Spielzustand (useReducer)
+│   └── components/
+│       ├── Landing.tsx           # Start: Lobby erstellen/beitreten
+│       ├── Lobby.tsx             # Warteraum, Einstellungen
+│       ├── SentenceCollection.tsx # Sätze schreiben (optional)
+│       ├── GameRound.tsx         # Kartenauswahl + Joker
+│       ├── CardReveal.tsx        # Aufdecken + Voting
+│       ├── RoundResults.tsx      # Rundenergebnis
+│       ├── FinalScores.tsx       # Endwertung
+│       ├── MemeCard.tsx          # Karten-Komponente (Bild oder Platzhalter)
+│       └── PlayerList.tsx        # Spielerliste
 └── server/                      # Backend
     ├── package.json
     ├── tsconfig.json
@@ -42,14 +71,24 @@ browser-meme-game/
             └── defaultSentences.ts # Standard-Rundentexte (deutsch)
 ```
 
+## Meme-Bilder
+
+Bilder werden aus `public/memes/` geladen. Benennungsschema: `0.jpg`, `1.jpg`, `2.jpg`, ...
+Die `imageIndex`-Nummer vom Server mappt direkt auf den Dateinamen.
+Wenn ein Bild fehlt, zeigt die MemeCard einen farbigen Platzhalter mit Emoji.
+
+**So fügst du Bilder hinzu:** Einfach JPG-Dateien nummeriert in `public/memes/` ablegen.
+Die `cardSetSize`-Einstellung (Lobby) sollte zur Anzahl der vorhandenen Bilder passen.
+
 ## Tech Stack
 
-- **Runtime**: Node.js 18+
-- **Sprache**: TypeScript (strict mode)
-- **WebSocket**: `ws` Library
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend**: Node.js 18+ + TypeScript (strict mode)
+- **WebSocket**: `ws` Library (Server), native `WebSocket` API (Client)
 - **HTTP**: Express (Health-Check, CORS)
-- **Hosting**: Railway (Free Tier, WebSocket-Support)
-- **Frontend-Hosting**: Vercel
+- **Frontend-Hosting**: Vercel → https://browser-meme-game.vercel.app
+- **Backend-Hosting**: Railway (Free Tier, WebSocket-Support)
+- **GitHub**: github.com/CGWeb94/browser-meme-game
 
 ## Kernkonzepte
 
