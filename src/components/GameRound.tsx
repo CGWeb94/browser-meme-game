@@ -171,7 +171,7 @@ export default function GameRound() {
           </button>
         )}
         <button
-          className={`px-4 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 shadow-lg
+          className={`px-6 py-4 rounded-xl font-semibold transition-all flex items-center gap-3 shadow-lg
             ${state.jokersRemaining > 0 && !state.selectedCardId
               ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer shadow-green-600/50'
               : 'bg-gray-700 opacity-50 text-gray-400 cursor-not-allowed'
@@ -181,8 +181,8 @@ export default function GameRound() {
           disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
           title={state.jokersRemaining > 0 ? `Joker verwenden (${state.jokersRemaining} übrig)` : 'Keine Joker mehr verfügbar'}
         >
-          <span className="text-lg">🎴</span>
-          <span>{state.jokersRemaining}</span>
+          <img src="/joker.png" alt="Joker" className="w-8 h-8 object-contain" />
+          <span className="text-lg">{state.jokersRemaining}</span>
         </button>
       </div>
 

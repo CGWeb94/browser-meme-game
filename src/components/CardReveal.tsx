@@ -18,6 +18,13 @@ export default function CardReveal() {
           <p className="text-lg font-semibold text-white">{state.roundText}</p>
         </div>
 
+        {/* Error display */}
+        {state.error && (
+          <div className="bg-red-900/80 border border-red-600 rounded-lg p-3 text-center">
+            <p className="text-red-200 text-sm font-medium">{state.error}</p>
+          </div>
+        )}
+
         {/* Instruction */}
         <div className="text-center">
           {state.votedCardId ? (

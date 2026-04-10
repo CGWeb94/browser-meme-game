@@ -180,7 +180,7 @@ function reducer(state: GameState, action: Action): GameState {
     case 'REVEAL_CARDS':
       return { ...state, screen: 'revealing', revealedCards: action.cards, playersReady: 0, votedCardId: null };
     case 'VOTE_CARD':
-      return { ...state, votedCardId: action.cardId };
+      return { ...state, votedCardId: action.cardId, error: null };
     case 'VOTE_RECEIVED':
       return { ...state, playersReady: action.playersVoted, totalPlayers: action.totalPlayers };
     case 'ROUND_RESULTS':
