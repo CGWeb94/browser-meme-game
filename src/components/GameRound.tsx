@@ -8,7 +8,19 @@ export default function GameRound() {
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [jokerMode, setJokerMode] = useState(false);
   const [playedCardAnimation, setPlayedCardAnimation] = useState<{ cardId: string; cardIndex: number } | null>(null);
-  const [justDrew, setJustDrew] = useState(false);
+  const [drawnCard, setDrawnCard] = useState<any>(null);
+
+  // Handle drawn card animation
+  useEffect(() => {
+    if (state.hand.length > 0 && drawnCard === null) {
+      const lastCard = state.hand[state.hand.length - 1];
+      if (lastCard && !playedCardAnimation) {
+        setDrawnCard(lastCard);
+        const timer = setTimeout(() => setDrawnCard(null), 600);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [state.hand.length, playedCardAnimation, drawnCard]);
 
   const handleSelectCard = (cardId: string) => {
     const cardIndex = state.hand.findIndex(c => c.id === cardId);
