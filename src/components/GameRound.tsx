@@ -107,7 +107,7 @@ export default function GameRound() {
       </div>
 
       {/* Played cards in center */}
-      {state.selectedCardId && (
+      {state.playersReady > 0 && (
         <div className="flex-1 flex flex-col items-center justify-center relative z-10">
           <div className="flex flex-wrap gap-3 justify-center items-center">
             {Array.from({ length: state.playersReady }).map((_, i) => (
