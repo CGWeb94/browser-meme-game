@@ -268,6 +268,9 @@ export class GameHandler {
 
       const connectedCount = this.lobby.getConnectedPlayerCount(gameState);
       const votedCount = Object.keys(gameState.currentRound!.votes).length;
+      const connectedPlayers = [...gameState.players.values()].filter(p => p.connected);
+
+      console.log(`[VOTE] ${votedCount}/${connectedCount} voted. Players: ${connectedPlayers.map(p => `${p.name}(${gameState.currentRound!.votes[p.id] ? '✓' : '✗'})`).join(', ')}. allVoted=${allVoted}`);
 
       const progressPayload: S2C_VoteReceived = {
         playersVoted: votedCount,
@@ -276,9 +279,11 @@ export class GameHandler {
       this.conn.broadcastToLobby(data.lobbyId, 'voteReceived', progressPayload);
 
       if (allVoted) {
+        console.log(`[VOTE] All players voted! Advancing to results.`);
         this.showRoundResults(data.lobbyId);
       }
     } catch (err: any) {
+      console.error(`[VOTE ERROR]`, err.message);
       this.conn.sendError(ws, err.message);
     }
   }

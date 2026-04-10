@@ -356,8 +356,14 @@ export class LobbyManager {
     const player = gs.players.get(playerId);
     if (!player) throw new Error('Spieler nicht gefunden');
 
+    // Debug: Log played cards
+    console.log(`[VOTE] Player ${player.name} voting on card ${cardId}. PlayedCards:`,
+      gs.currentRound.playedCards.map(pc => `${pc.playerId}(${pc.card.id})`).join(', '));
+
     // Can't vote for your own card
     const ownCard = gs.currentRound.playedCards.find(pc => pc.playerId === playerId);
+    console.log(`[VOTE] Own card check: ownCard=${ownCard ? ownCard.card.id : 'none'}, votingFor=${cardId}, isOwn=${ownCard && ownCard.card.id === cardId}`);
+
     if (ownCard && ownCard.card.id === cardId) {
       throw new Error('Du kannst nicht für deine eigene Karte stimmen');
     }

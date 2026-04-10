@@ -1,5 +1,30 @@
+import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import PlayerList from './PlayerList';
+
+function CodeDisplay({ code }: { code: string }) {
+  const [revealed, setRevealed] = useState(false);
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <span className="text-sm text-gray-400">Code:</span>
+      <div className="flex items-center gap-1">
+        <span className={`text-2xl font-mono font-bold tracking-[0.3em] px-4 py-1 rounded-lg select-all transition-all ${
+          revealed ? 'text-green-400 bg-green-900/30' : 'text-gray-600 bg-gray-800'
+        }`}>
+          {revealed ? code : '••••••'}
+        </span>
+        <button
+          onClick={() => setRevealed(!revealed)}
+          className="px-2 py-1 hover:bg-green-900/30 rounded-lg transition-colors text-gray-400 hover:text-green-400"
+          title={revealed ? 'Code verstecken (für Streamer)' : 'Code anzeigen'}
+        >
+          {revealed ? '👁️' : '🔒'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Lobby() {
   const { state, send, dispatch } = useGame();
@@ -24,13 +49,8 @@ export default function Lobby() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold">Lobby</h2>
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-sm text-gray-400">Code:</span>
-            <span className="text-2xl font-mono font-bold tracking-[0.3em] text-green-400 bg-green-900/30 px-4 py-1 rounded-lg select-all">
-              {lobbyId}
-            </span>
-          </div>
-          <p className="text-xs text-gray-500">Teile diesen Code mit deinen Freunden</p>
+          <CodeDisplay code={lobbyId || ''} />
+          <p className="text-xs text-gray-500">Code für Streamer versteckbar 🔒</p>
         </div>
 
         {/* Player list */}
