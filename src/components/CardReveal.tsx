@@ -1,13 +1,24 @@
+import { useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 
 export default function CardReveal() {
   const { state, send, dispatch } = useGame();
+  const [showError, setShowError] = useState(false);
 
   const handleVote = (cardId: string) => {
     dispatch({ type: 'VOTE_CARD', cardId });
     send('vote', { lobbyId: state.lobbyId!, cardId });
   };
+
+  // Show error for longer duration
+  useEffect(() => {
+    if (state.error) {
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.error]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -18,10 +29,10 @@ export default function CardReveal() {
           <p className="text-lg font-semibold text-white">{state.roundText}</p>
         </div>
 
-        {/* Error display */}
-        {state.error && (
-          <div className="bg-red-900/80 border border-red-600 rounded-lg p-3 text-center">
-            <p className="text-red-200 text-sm font-medium">{state.error}</p>
+        {/* Error display - persistent for 4 seconds */}
+        {showError && state.error && (
+          <div className="bg-red-600 border-2 border-red-400 rounded-xl p-4 text-center animate-pulse">
+            <p className="text-white text-base font-bold">❌ {state.error}</p>
           </div>
         )}
 
