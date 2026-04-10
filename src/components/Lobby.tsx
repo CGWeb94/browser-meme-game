@@ -4,6 +4,17 @@ import PlayerList from './PlayerList';
 
 function CodeDisplay({ code }: { code: string }) {
   const [revealed, setRevealed] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center gap-2">
@@ -14,6 +25,13 @@ function CodeDisplay({ code }: { code: string }) {
         }`}>
           {revealed ? code : '••••••'}
         </span>
+        <button
+          onClick={handleCopy}
+          className="px-2 py-1 hover:bg-green-900/30 rounded-lg transition-colors text-gray-400 hover:text-green-400"
+          title="In Zwischenablage kopieren"
+        >
+          {copied ? '✓' : '📋'}
+        </button>
         <button
           onClick={() => setRevealed(!revealed)}
           className="px-2 py-1 hover:bg-green-900/30 rounded-lg transition-colors text-gray-400 hover:text-green-400"
