@@ -53,10 +53,10 @@ export default function RoundResults() {
           <div className="space-y-2">
             {state.scores.map((s, i) => (
               <div key={s.playerId} className="flex items-center justify-between text-sm">
-                <span className={`${s.playerId === state.playerId ? 'text-indigo-400 font-semibold' : 'text-gray-300'}`}>
+                <span className={`${s.playerId === state.playerId ? 'text-green-400 font-semibold' : 'text-gray-300'}`}>
                   {i + 1}. {s.playerName}
                 </span>
-                <span className="font-mono text-indigo-400">{s.score}</span>
+                <span className="font-mono text-green-400">{s.score}</span>
               </div>
             ))}
           </div>

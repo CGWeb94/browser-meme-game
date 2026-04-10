@@ -26,13 +26,13 @@ export default function CardReveal() {
               <p className="text-gray-500 text-xs">{state.playersReady} / {state.totalPlayers} haben abgestimmt</p>
               <div className="w-48 mx-auto bg-gray-800 rounded-full h-1.5">
                 <div
-                  className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500"
+                  className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
                   style={{ width: `${state.totalPlayers ? (state.playersReady / state.totalPlayers) * 100 : 0}%` }}
                 />
               </div>
             </div>
           ) : (
-            <p className="text-indigo-400 text-sm font-medium">Stimme für die beste Karte!</p>
+            <p className="text-green-400 text-sm font-medium">Stimme für die beste Karte!</p>
           )}
         </div>
 

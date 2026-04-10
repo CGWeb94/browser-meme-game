@@ -27,7 +27,7 @@ export default function PlayerList({ players, hostId, currentPlayerId }: PlayerL
               <span className="text-xs bg-yellow-600/30 text-yellow-400 px-2 py-0.5 rounded-full">Host</span>
             )}
             {p.score > 0 && (
-              <span className="text-xs text-indigo-400 font-mono">{p.score} Pkt</span>
+              <span className="text-xs text-green-400 font-mono">{p.score} Pkt</span>
             )}
           </li>
         ))}

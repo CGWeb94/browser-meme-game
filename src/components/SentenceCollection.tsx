@@ -22,7 +22,7 @@ export default function SentenceCollection() {
 
   if (state.sentencesSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)' }}>
         <div className="card-container max-w-md w-full text-center space-y-4 animate-slide-up">
           <div className="text-5xl animate-pulse-slow">✍️</div>
           <h2 className="text-xl font-bold">Sätze eingereicht!</h2>
@@ -34,7 +34,7 @@ export default function SentenceCollection() {
           </div>
           <div className="w-full bg-gray-800 rounded-full h-2">
             <div
-              className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
+              className="bg-green-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${state.totalPlayers ? (state.playersReady / state.totalPlayers) * 100 : 0}%` }}
             />
           </div>
@@ -44,7 +44,7 @@ export default function SentenceCollection() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)' }}>
       <div className="card-container max-w-md w-full space-y-6 animate-slide-up">
         <div className="text-center space-y-2">
           <div className="text-4xl">✍️</div>

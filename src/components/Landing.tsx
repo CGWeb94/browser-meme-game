@@ -20,12 +20,12 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="card-container max-w-md w-full space-y-8 animate-slide-up">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)' }}>
+      <div className="card-container max-w-md w-full space-y-8 animate-slide-up bg-gray-900/80 border border-green-800/50">
         {/* Logo */}
         <div className="text-center space-y-2">
           <div className="text-6xl">🃏</div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
             Meme Card Game
           </h1>
           <p className="text-gray-500 text-sm">Das ultimative Meme-Kartenspiel</p>

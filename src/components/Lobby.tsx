@@ -19,14 +19,14 @@ export default function Lobby() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)' }}>
       <div className="card-container max-w-lg w-full space-y-6 animate-slide-up">
         {/* Header */}
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold">Lobby</h2>
           <div className="flex items-center justify-center gap-2">
             <span className="text-sm text-gray-400">Code:</span>
-            <span className="text-2xl font-mono font-bold tracking-[0.3em] text-indigo-400 bg-indigo-900/30 px-4 py-1 rounded-lg select-all">
+            <span className="text-2xl font-mono font-bold tracking-[0.3em] text-green-400 bg-green-900/30 px-4 py-1 rounded-lg select-all">
               {lobbyId}
             </span>
           </div>
@@ -115,9 +115,9 @@ export default function Lobby() {
             <button
               className="btn-primary flex-1"
               onClick={handleStart}
-              disabled={players.filter(p => p.connected).length < 3}
+              disabled={players.filter(p => p.connected).length < 2}
             >
-              Spiel starten {players.filter(p => p.connected).length < 3 && `(${players.filter(p => p.connected).length}/3)`}
+              Spiel starten {players.filter(p => p.connected).length < 2 && `(${players.filter(p => p.connected).length}/2)`}
             </button>
           )}
         </div>

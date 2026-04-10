@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import PlayerList from './PlayerList';
@@ -7,7 +7,6 @@ export default function GameRound() {
   const { state, send, dispatch } = useGame();
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [jokerMode, setJokerMode] = useState(false);
-  const [dealtCount, setDealtCount] = useState(0);
 
   const handleSelectCard = (cardId: string) => {
     dispatch({ type: 'SELECT_CARD', cardId });
@@ -21,22 +20,6 @@ export default function GameRound() {
     setJokerMode(false);
   };
 
-  // Dealer animation: cards dealt one-by-one when screen becomes 'selecting'
-  useEffect(() => {
-    if (state.hand.length > 0 && dealtCount === 0) {
-      // Start dealer animation
-      const interval = setInterval(() => {
-        setDealtCount(prev => {
-          if (prev >= state.hand.length) {
-            clearInterval(interval);
-            return state.hand.length;
-          }
-          return prev + 1;
-        });
-      }, 150);
-      return () => clearInterval(interval);
-    }
-  }, [state.hand.length, dealtCount]);
 
   // Calculate fan layout
   const maxAngle = Math.min(25, (state.hand.length - 1) * 5);
@@ -52,7 +35,8 @@ export default function GameRound() {
     };
   };
 
-  const visibleHand = state.hand.slice(0, dealtCount);
+  // Show all cards immediately, but stagger the animation
+  const visibleHand = state.hand;
 
   return (
     <div className="min-h-screen flex flex-col p-4 relative"
@@ -74,7 +58,7 @@ export default function GameRound() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-400">
-            Karten: <span className="text-indigo-400">{state.hand.length}</span>
+            Karten: <span className="text-green-400">{state.hand.length}</span>
           </span>
         </div>
       </div>

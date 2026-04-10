@@ -11,25 +11,25 @@
 
 @layer components {
   .btn-primary {
-    @apply px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl
+    @apply px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl
            transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed
-           shadow-lg shadow-indigo-600/20;
+           shadow-lg shadow-green-600/20;
   }
   .btn-secondary {
-    @apply px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-100 font-semibold rounded-xl
-           transition-all duration-200 active:scale-95 border border-gray-700;
+    @apply px-6 py-3 bg-green-900/50 hover:bg-green-900 text-green-100 font-semibold rounded-xl
+           transition-all duration-200 active:scale-95 border border-green-700;
   }
   .btn-danger {
     @apply px-6 py-3 bg-red-600/80 hover:bg-red-500 text-white font-semibold rounded-xl
            transition-all duration-200 active:scale-95;
   }
   .input-field {
-    @apply w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white
-           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+    @apply w-full px-4 py-3 bg-gray-900 border border-green-700/50 rounded-xl text-white
+           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
            transition-all;
   }
   .card-container {
-    @apply bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl;
+    @apply bg-gray-900/80 border border-green-800/50 rounded-2xl p-6 shadow-xl;
   }
   .meme-card {
     @apply relative w-48 h-32 rounded-xl overflow-hidden cursor-pointer

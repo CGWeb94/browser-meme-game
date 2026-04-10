@@ -21,7 +21,7 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
   const sizeClasses = {
     sm: 'w-32 h-20',
     md: 'w-48 h-32',
-    lg: 'w-64 h-44',
+    lg: 'w-96 h-64',
   };
 
   // Generate a consistent color from the imageIndex
@@ -29,7 +29,7 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
 
   if (faceDown) {
     return (
-      <div style={style} className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-indigo-800 to-purple-900 border-2 border-indigo-600 flex items-center justify-center shadow-lg`}>
+      <div style={style} className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-green-800 to-emerald-900 border-2 border-green-600 flex items-center justify-center shadow-lg`}>
         <span className="text-3xl opacity-50">🃏</span>
       </div>
     );
@@ -39,8 +39,8 @@ export default function MemeCard({ imageIndex, selected, disabled, faceDown, siz
     <div
       style={style}
       className={`${sizeClasses[size]} rounded-xl overflow-hidden border-2 transition-all duration-200 flex-shrink-0
-        ${selected ? 'border-indigo-500 ring-2 ring-indigo-500 scale-105 shadow-lg shadow-indigo-500/30' : 'border-gray-700'}
-        ${disabled ? 'opacity-60 cursor-default' : 'cursor-pointer hover:border-indigo-400 hover:scale-105 hover:shadow-lg'}
+        ${selected ? 'border-green-500 ring-2 ring-green-500 scale-105 shadow-lg shadow-green-500/30' : 'border-gray-700'}
+        ${disabled ? 'opacity-60 cursor-default' : 'cursor-pointer hover:border-green-400 hover:scale-105 hover:shadow-lg'}
       `}
       onClick={disabled ? undefined : onClick}
     >
