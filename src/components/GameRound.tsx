@@ -148,11 +148,6 @@ export default function GameRound() {
                     selected={state.selectedCardId === card.id}
                     disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
                   />
-                  {jokerMode && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-xl pointer-events-none">
-                      <span className="text-3xl drop-shadow-lg">🎴</span>
-                    </div>
-                  )}
                 </button>
               </div>
             ))}

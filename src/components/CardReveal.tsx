@@ -29,10 +29,10 @@ export default function CardReveal() {
           <p className="text-lg font-semibold text-white">{state.roundText}</p>
         </div>
 
-        {/* Error display - persistent for 4 seconds */}
+        {/* Error display - small and subtle */}
         {showError && state.error && (
-          <div className="bg-red-600 border-2 border-red-400 rounded-xl p-4 text-center animate-pulse">
-            <p className="text-white text-base font-bold">❌ {state.error}</p>
+          <div className="bg-red-700/70 border border-red-500 rounded-lg px-3 py-2 text-center">
+            <p className="text-red-100 text-sm">{state.error}</p>
           </div>
         )}
 
@@ -66,8 +66,8 @@ export default function CardReveal() {
                 imageIndex={rc.imageIndex}
                 size="lg"
                 selected={state.votedCardId === rc.cardId}
-                disabled={!!state.votedCardId}
-                onClick={() => !state.votedCardId && handleVote(rc.cardId)}
+                disabled={!!state.votedCardId || rc.cardId === state.selectedCardId}
+                onClick={() => !state.votedCardId && rc.cardId !== state.selectedCardId && handleVote(rc.cardId)}
               />
             </div>
           ))}
