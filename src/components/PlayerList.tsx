@@ -17,7 +17,7 @@ export default function PlayerList({ players, hostId, currentPlayerId }: PlayerL
           <li
             key={p.id}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-              ${p.id === currentPlayerId ? 'bg-indigo-900/30 border border-indigo-800' : 'bg-gray-900/50'}
+              ${p.id === currentPlayerId ? 'bg-green-900/30 border border-green-800' : 'bg-gray-900/50'}
               ${!p.connected ? 'opacity-40' : ''}
             `}
           >

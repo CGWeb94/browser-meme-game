@@ -14,6 +14,7 @@ import {
   S2C_SentencesCollected,
   S2C_RoundText,
   S2C_CardSelected,
+  S2C_CardPlayed,
   S2C_RevealCards,
   S2C_VoteReceived,
   S2C_RoundResults,
@@ -241,13 +242,26 @@ export class GameHandler {
       // Notify all players about progress (without revealing who chose what)
       const connectedCount = this.lobby.getConnectedPlayerCount(gameState);
       const selectedCount = [...gameState.players.values()].filter(p => p.connected && p.selectedCardId !== null).length;
+      const player = gameState.players.get(meta.playerId);
 
+      // Send updated hand to the player who played the card
+      if (player) {
+        const cardPlayedPayload: S2C_CardPlayed = {
+          playerId: meta.playerId,
+          hand: player.hand,
+          playersReady: selectedCount,
+          totalPlayers: connectedCount,
+        };
+        this.conn.sendTo(meta.playerId, 'cardPlayed', cardPlayedPayload);
+      }
+
+      // Notify other players about progress
       const progressPayload: S2C_CardSelected = {
         playerId: meta.playerId,
         playersReady: selectedCount,
         totalPlayers: connectedCount,
       };
-      this.conn.broadcastToLobby(data.lobbyId, 'cardSelected', progressPayload);
+      this.conn.broadcastToLobby(data.lobbyId, 'cardSelected', progressPayload, meta.playerId);
 
       if (allSelected) {
         this.revealCards(data.lobbyId);

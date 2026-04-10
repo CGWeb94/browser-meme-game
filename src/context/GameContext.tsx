@@ -83,6 +83,7 @@ type Action =
   | { type: 'ROUND_TEXT'; roundNumber: number; totalRounds: number; text: string }
   | { type: 'SELECT_CARD'; cardId: string }
   | { type: 'CARD_SELECTED'; playersReady: number; totalPlayers: number }
+  | { type: 'CARD_PLAYED'; hand: Card[]; playersReady: number; totalPlayers: number }
   | { type: 'REVEAL_CARDS'; cards: RevealedCard[] }
   | { type: 'VOTE_CARD'; cardId: string }
   | { type: 'VOTE_RECEIVED'; playersVoted: number; totalPlayers: number }
@@ -174,6 +175,8 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, selectedCardId: action.cardId };
     case 'CARD_SELECTED':
       return { ...state, playersReady: action.playersReady, totalPlayers: action.totalPlayers };
+    case 'CARD_PLAYED':
+      return { ...state, hand: action.hand, playersReady: action.playersReady, totalPlayers: action.totalPlayers };
     case 'REVEAL_CARDS':
       return { ...state, screen: 'revealing', revealedCards: action.cards, playersReady: 0, votedCardId: null };
     case 'VOTE_CARD':
@@ -283,6 +286,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         break;
       case 'cardSelected':
         dispatch({ type: 'CARD_SELECTED', playersReady: data.playersReady, totalPlayers: data.totalPlayers });
+        break;
+      case 'cardPlayed':
+        dispatch({ type: 'CARD_PLAYED', hand: data.hand, playersReady: data.playersReady, totalPlayers: data.totalPlayers });
         break;
       case 'revealCards':
         dispatch({ type: 'REVEAL_CARDS', cards: data.cards });

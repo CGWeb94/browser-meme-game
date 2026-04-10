@@ -194,6 +194,13 @@ export interface S2C_CardSelected {
   totalPlayers: number;
 }
 
+export interface S2C_CardPlayed {
+  playerId: string;
+  hand: Card[];
+  playersReady: number;
+  totalPlayers: number;
+}
+
 export interface S2C_RevealCards {
   cards: { cardId: string; imageIndex: number; playerId: string }[];
 }

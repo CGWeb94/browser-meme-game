@@ -107,7 +107,7 @@ export default function GameRound() {
               >
                 <button
                   className={`relative block transition-all duration-200 hover:scale-125 hover:-translate-y-6 hover:z-50
-                    ${jokerMode ? 'ring-4 ring-yellow-500/50 rounded-xl' : ''}
+                    ${jokerMode ? 'ring-4 ring-green-500/60 rounded-xl' : ''}
                     ${previewCard === card.id ? 'scale-125 -translate-y-6' : ''}
                   `}
                   onClick={() => {
@@ -126,7 +126,7 @@ export default function GameRound() {
                   />
                   {jokerMode && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-xl pointer-events-none">
-                      <span className="text-2xl font-bold text-yellow-300 drop-shadow-lg">↔️</span>
+                      <span className="text-3xl drop-shadow-lg">🎴</span>
                     </div>
                   )}
                 </button>
@@ -137,7 +137,7 @@ export default function GameRound() {
       </div>
 
       {/* Joker button - bottom right */}
-      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-3">
+      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-2">
         {jokerMode && (
           <button
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors"
@@ -147,16 +147,18 @@ export default function GameRound() {
           </button>
         )}
         <button
-          className={`px-4 py-3 rounded-lg text-white font-semibold transition-all flex items-center gap-2
+          className={`px-4 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 shadow-lg
             ${state.jokersRemaining > 0 && !state.selectedCardId
-              ? 'bg-yellow-600 hover:bg-yellow-500 cursor-pointer'
-              : 'bg-gray-600 opacity-50 cursor-not-allowed'
+              ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer shadow-green-600/50'
+              : 'bg-gray-700 opacity-50 text-gray-400 cursor-not-allowed'
             }
           `}
           onClick={() => setJokerMode(!jokerMode)}
           disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
+          title={state.jokersRemaining > 0 ? `Joker verwenden (${state.jokersRemaining} übrig)` : 'Keine Joker mehr verfügbar'}
         >
-          🔄 <span className="text-sm">{state.jokersRemaining}</span>
+          <span className="text-lg">🎴</span>
+          <span>{state.jokersRemaining}</span>
         </button>
       </div>
 
