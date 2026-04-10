@@ -45,23 +45,10 @@ export default function GameRound() {
   };
 
 
-  // Calculate 3D fan layout (poker hand)
+  // Calculate card overlap layout (simple horizontal with negative margin)
   const getCardTransform = (index: number) => {
-    if (state.hand.length <= 1) {
-      return {
-        transform: 'rotateX(-15deg) rotateY(0deg) rotateZ(0deg) translateY(0px) translateZ(0px)',
-        transformOrigin: 'bottom center',
-      };
-    }
-    const t = (index / (state.hand.length - 1)) * 2 - 1; // -1 to +1
-    const maxAngle = Math.min(28, (state.hand.length - 1) * 5);
-    const rotZ = t * maxAngle;
-    const liftY = -Math.abs(rotZ) * 0.8;
-    const rotY = t * -12;
-    const depthZ = Math.abs(t) * -30;
     return {
-      transform: `rotateX(-15deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translateY(${liftY}px) translateZ(${depthZ}px)`,
-      transformOrigin: 'bottom center',
+      marginRight: '-48px', // overlap cards
     };
   };
 
@@ -119,50 +106,56 @@ export default function GameRound() {
         )}
       </div>
 
-      {/* Cards - fanned at bottom center */}
-      <div className="flex-1 flex flex-col justify-end items-center pb-8 relative z-20">
-        <div
-          className="relative"
-          style={{ width: '800px', height: '320px', perspective: '1200px', transformStyle: 'preserve-3d' }}
-        >
-          <div className="absolute inset-0 flex items-end justify-center">
-            {visibleHand.map((card, i) => (
-              <div
-                key={card.id}
-                className="group relative transition-all duration-200"
-                style={{
-                  ...getCardTransform(i),
-                  zIndex: state.selectedCardId === card.id ? 50 : 20 + i,
-                  transformStyle: 'preserve-3d',
-                }}
-              >
-                <button
-                  className={`relative block transition-all duration-200 hover:scale-125 hover:-translate-y-6 hover:z-50 animate-deal-in ${
-                    jokerMode ? 'cursor-swap ring-4 ring-green-500/60 rounded-xl' : 'cursor-pointer'
-                  }
-                    ${previewCard === card.id ? 'scale-125 -translate-y-6' : ''}
-                  `}
-                  style={{
-                    animationDelay: `${i * 150}ms`,
-                  }}
-                  onClick={() => {
-                    if (jokerMode) {
-                      handleUseJoker(card.id);
-                    } else {
-                      setPreviewCard(card.id);
-                    }
-                  }}
-                  disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
-                >
-                  <MemeCard
-                    imageIndex={card.imageIndex}
-                    selected={state.selectedCardId === card.id}
-                    disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
-                  />
-                </button>
-              </div>
+      {/* Played cards in center */}
+      {state.selectedCardId && (
+        <div className="flex-1 flex flex-col items-center justify-center relative z-10">
+          <div className="flex flex-wrap gap-3 justify-center items-center">
+            {Array.from({ length: state.playersReady }).map((_, i) => (
+              <MemeCard key={`played-${i}`} imageIndex={0} faceDown size="md" />
             ))}
           </div>
+          <p className="text-gray-400 text-xs mt-4">
+            {state.playersReady} / {state.totalPlayers} Spieler haben gespielt
+          </p>
+        </div>
+      )}
+
+      {/* Cards - simple horizontal overlap at bottom center */}
+      <div className="flex-1 flex flex-col justify-end items-center pb-8 relative z-20">
+        <div className="flex items-end justify-center gap-0">
+          {visibleHand.map((card, i) => (
+            <div
+              key={card.id}
+              className="group relative transition-all duration-200 animate-deal-in hover:scale-125 hover:-translate-y-6 hover:z-50"
+              style={{
+                marginRight: '-48px',
+                zIndex: state.selectedCardId === card.id ? 50 : 20 + i,
+                animationDelay: `${i * 150}ms`,
+              }}
+            >
+              <button
+                className={`relative block transition-all duration-200 ${
+                  jokerMode ? 'cursor-swap ring-4 ring-green-500/60 rounded-xl' : 'cursor-pointer'
+                }
+                  ${previewCard === card.id ? 'scale-125 -translate-y-6' : ''}
+                `}
+                onClick={() => {
+                  if (jokerMode) {
+                    handleUseJoker(card.id);
+                  } else {
+                    setPreviewCard(card.id);
+                  }
+                }}
+                disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
+              >
+                <MemeCard
+                  imageIndex={card.imageIndex}
+                  selected={state.selectedCardId === card.id}
+                  disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
+                />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -232,14 +225,14 @@ export default function GameRound() {
       )}
 
 
-      {/* Card play animation - flying card */}
+      {/* Card play animation - flying card from hand to center */}
       {playedCardAnimation && (
         <div className="fixed inset-0 pointer-events-none z-40">
           <div
-            className="absolute animate-card-play"
+            className="absolute"
             style={{
               left: 'calc(50% - 48px)',
-              top: 'calc(100% - 140px)',
+              top: 'calc(50% + 120px)',
               animation: 'cardPlay 0.6s ease-in-out forwards',
             }}
           >
@@ -264,15 +257,15 @@ export default function GameRound() {
       <style>{`
         @keyframes cardPlay {
           0% {
-            transform: translateX(0) translateY(0) scale(1) rotateZ(0deg);
+            transform: translateY(280px) scale(1) rotateZ(0deg);
             opacity: 1;
           }
           50% {
-            transform: translateX(0) translateY(-100px) scale(1.1) rotateZ(-10deg);
+            transform: translateY(100px) scale(1.05) rotateZ(-5deg);
           }
           100% {
-            transform: translateX(0) translateY(-200px) scale(0.9) rotateZ(-20deg) rotateX(90deg);
-            opacity: 0.7;
+            transform: translateY(0px) scale(1) rotateZ(0deg);
+            opacity: 1;
           }
         }
       `}</style>
