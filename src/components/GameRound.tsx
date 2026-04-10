@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
-import PlayerList from './PlayerList';
+import PlayerSeats from './PlayerSeats';
 
 export default function GameRound() {
   const { state, send, dispatch } = useGame();
@@ -45,16 +45,22 @@ export default function GameRound() {
   };
 
 
-  // Calculate fan layout
-  const maxAngle = Math.min(25, (state.hand.length - 1) * 5);
+  // Calculate 3D fan layout (poker hand)
   const getCardTransform = (index: number) => {
     if (state.hand.length <= 1) {
-      return { transform: 'rotate(0deg) translateY(0px)' };
+      return {
+        transform: 'rotateX(-15deg) rotateY(0deg) rotateZ(0deg) translateY(0px) translateZ(0px)',
+        transformOrigin: 'bottom center',
+      };
     }
-    const rot = -maxAngle + (index / (state.hand.length - 1)) * maxAngle * 2;
-    const liftY = -Math.abs(rot) * 0.8;
+    const t = (index / (state.hand.length - 1)) * 2 - 1; // -1 to +1
+    const maxAngle = Math.min(28, (state.hand.length - 1) * 5);
+    const rotZ = t * maxAngle;
+    const liftY = -Math.abs(rotZ) * 0.8;
+    const rotY = t * -12;
+    const depthZ = Math.abs(t) * -30;
     return {
-      transform: `rotate(${rot}deg) translateY(${liftY}px)`,
+      transform: `rotateX(-15deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translateY(${liftY}px) translateZ(${depthZ}px)`,
       transformOrigin: 'bottom center',
     };
   };
@@ -115,25 +121,30 @@ export default function GameRound() {
 
       {/* Cards - fanned at bottom center */}
       <div className="flex-1 flex flex-col justify-end items-center pb-8 relative z-20">
-        <div className="relative" style={{ width: '800px', height: '280px', perspective: '1200px' }}>
+        <div
+          className="relative"
+          style={{ width: '800px', height: '320px', perspective: '1200px', transformStyle: 'preserve-3d' }}
+        >
           <div className="absolute inset-0 flex items-end justify-center">
             {visibleHand.map((card, i) => (
               <div
                 key={card.id}
-                className={`group relative transition-all duration-200 ${
-                  jokerMode ? 'cursor-swap' : 'cursor-pointer'
-                } animate-deal-in`}
+                className="group relative transition-all duration-200"
                 style={{
                   ...getCardTransform(i),
                   zIndex: state.selectedCardId === card.id ? 50 : 20 + i,
-                  animationDelay: `${i * 150}ms`,
+                  transformStyle: 'preserve-3d',
                 }}
               >
                 <button
-                  className={`relative block transition-all duration-200 hover:scale-125 hover:-translate-y-6 hover:z-50
-                    ${jokerMode ? 'ring-4 ring-green-500/60 rounded-xl' : ''}
+                  className={`relative block transition-all duration-200 hover:scale-125 hover:-translate-y-6 hover:z-50 animate-deal-in ${
+                    jokerMode ? 'cursor-swap ring-4 ring-green-500/60 rounded-xl' : 'cursor-pointer'
+                  }
                     ${previewCard === card.id ? 'scale-125 -translate-y-6' : ''}
                   `}
+                  style={{
+                    animationDelay: `${i * 150}ms`,
+                  }}
                   onClick={() => {
                     if (jokerMode) {
                       handleUseJoker(card.id);
@@ -241,12 +252,14 @@ export default function GameRound() {
         </div>
       )}
 
-      {/* Side: Player list */}
-      <div className="fixed right-4 top-4 w-48 hidden lg:block z-10">
-        <div className="card-container">
-          <PlayerList players={state.players} hostId={state.hostId} currentPlayerId={state.playerId} />
-        </div>
-      </div>
+      {/* Player seats around table */}
+      <PlayerSeats
+        players={state.players}
+        currentPlayerId={state.playerId}
+        playersReady={state.playersReady}
+        totalPlayers={state.totalPlayers}
+        selectedCardId={state.selectedCardId}
+      />
 
       <style>{`
         @keyframes cardPlay {
