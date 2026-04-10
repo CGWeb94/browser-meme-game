@@ -264,7 +264,8 @@ export class GameHandler {
       this.conn.broadcastToLobby(data.lobbyId, 'cardSelected', progressPayload, meta.playerId);
 
       if (allSelected) {
-        this.revealCards(data.lobbyId);
+        // Delay reveal to allow card play animation to complete
+        setTimeout(() => this.revealCards(data.lobbyId), 700);
       }
     } catch (err: any) {
       this.conn.sendError(ws, err.message);
