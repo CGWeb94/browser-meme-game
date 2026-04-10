@@ -73,12 +73,24 @@ browser-meme-game/
 
 ## Meme-Bilder
 
-Bilder werden aus `public/memes/` geladen. Benennungsschema: `0.jpg`, `1.jpg`, `2.jpg`, ...
-Die `imageIndex`-Nummer vom Server mappt direkt auf den Dateinamen.
+Bilder werden aus `public/memes/` geladen. Die `imageIndex`-Nummer vom Server mappt direkt auf den Dateinamen.
 Wenn ein Bild fehlt, zeigt die MemeCard einen farbigen Platzhalter mit Emoji.
 
-**So fügst du Bilder hinzu:** Einfach JPG-Dateien nummeriert in `public/memes/` ablegen.
-Die `cardSetSize`-Einstellung (Lobby) sollte zur Anzahl der vorhandenen Bilder passen.
+### Format & Ablage
+
+| Feld | Details |
+|------|---------|
+| **Ordner** | `public/memes/` |
+| **Dateinamen** | `0.jpg`, `1.jpg`, `2.jpg`, ... (nur Zahlen, keine Leerzeichen/Sonderzeichen) |
+| **Format** | JPG bevorzugt (auch PNG möglich, Dateiendung anpassen) |
+| **Größe** | Beliebig — `object-cover` passt die Bilder an den Kartenrahmen an |
+| **Proportion** | Querformat empfohlen (z.B. 1920×1080, 1280×720) — passt perfekt zu den Kartenabmessungen |
+| **Anzahl** | Sollte mindestens `cardSetSize` entsprechen (Standard: 120). Pro Lobby konfigurierbar. |
+
+**Beispiel:** 
+- 50 Meme-Bilder → `0.jpg` bis `49.jpg` in `public/memes/`
+- In der Lobby: `cardSetSize = 50` setzen
+- Pro Spiel werden 6 Karten × Anzahl Spieler benötigt
 
 ## Tech Stack
 
@@ -109,6 +121,31 @@ Die `cardSetSize`-Einstellung (Lobby) sollte zur Anzahl der vorhandenen Bilder p
 ### Joker
 - Max. 3 pro Spiel pro Spieler
 - Tauscht eine Handkarte gegen eine zufällige vom Nachziehstapel
+
+### UI/UX — GameRound-Screen (Kartenauswahl)
+
+**Poker-Tisch Aesthetic**
+- Grüner "Filz"-Hintergrund mit radialer Vignette
+- Karten fächerförmig angeordnet am unteren Bildrand (fan-out Layout)
+- Karten heben sich beim Hovern ab und werden 1,25× vergrößert
+
+**Kartenauswahl — Modal-Workflow**
+1. Spieler klickt auf eine Karte → Großansicht-Modal öffnet sich
+2. Modal zeigt die Karte in Originalgröße mit "Diese Karte spielen?" Bestätigung
+3. Spieler klickt "Spielen" → Karte wird als gewählt registriert, Server wird benachrichtigt
+4. Während andere Spieler noch wählen: Fortschrittsbalken zeigt, wie viele Spieler bereit sind
+
+**Dealer-Animation**
+- Beim Spielstart werden Karten eine nach der anderen vom unteren Rand "ausgeteilt" (150ms Verzögerung je Karte)
+- Jede Karte fliegt von unten nach oben ins Fächerlayout
+- Visuell: "Kartengeber teilt aus" wie am echten Pokertisch
+
+**Joker-Button**
+- Fester Button unten rechts: `🔄 Joker (X)` mit verbleibender Anzahl
+- Disabled wenn: keine Joker mehr übrig ODER Spieler hat bereits eine Karte für diese Runde gewählt
+- Klick → "Joker-Modus" aktiviert: Alle Karten erhalten gelbes Glow + ↔️ Icon
+- Im Joker-Modus: Klick auf Karte → diese Karte wird mit einer zufälligen vom Nachziehstapel getauscht
+- "Abbrechen"-Button neben Joker-Button zum Beenden des Joker-Modus
 
 ### Sicherheit
 - Server kontrolliert allen Zufall (Deck, Mischen, Ziehen)
