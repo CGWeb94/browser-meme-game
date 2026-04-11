@@ -37,15 +37,18 @@ export default function MemeCard({
   if (faceDown) {
     return (
       <div
-        className={`${sizeClasses[size]} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
+        className={`${sizeClasses[size]} rounded-xl overflow-hidden shadow-lg flex-shrink-0`}
         style={{
           ...style,
-          background: 'linear-gradient(135deg, #1e4d30 0%, #0f2d1a 100%)',
-          border: '5px solid rgba(255,255,255,0.85)',
-          borderRadius: '0.75rem',
+          border: '8px solid #ffffff',
+          borderRadius: '0.85rem',
         }}
       >
-        <span className="text-3xl opacity-40">🃏</span>
+        <img
+          src="/card-background.png"
+          alt="Kartenrückseite"
+          className="w-full h-full object-cover"
+        />
       </div>
     );
   }
