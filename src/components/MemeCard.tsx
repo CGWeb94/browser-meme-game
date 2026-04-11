@@ -41,7 +41,7 @@ export default function MemeCard({
         style={{
           ...style,
           background: 'linear-gradient(135deg, #1e4d30 0%, #0f2d1a 100%)',
-          border: '3px solid rgba(255,255,255,0.85)',
+          border: '5px solid rgba(255,255,255,0.85)',
           borderRadius: '0.75rem',
         }}
       >
@@ -56,12 +56,12 @@ export default function MemeCard({
         ...style,
         // Real playing card: white border, selected gets gold glow on top
         border: selected
-          ? '3px solid #d4a020'
-          : '3px solid rgba(255,255,255,0.88)',
+          ? '5px solid #d4a020'
+          : '5px solid rgba(255,255,255,0.92)',
         borderRadius: '0.75rem',
         boxShadow: selected
           ? '0 0 0 2px #d4a020, 0 0 20px rgba(212,160,32,0.5), 0 4px 12px rgba(0,0,0,0.4)'
-          : '0 4px 12px rgba(0,0,0,0.4)',
+          : '0 4px 16px rgba(0,0,0,0.5)',
         transform: selected ? 'scale(1.03)' : undefined,
       }}
       className={`${sizeClasses[size]} overflow-hidden transition-all duration-200 flex-shrink-0

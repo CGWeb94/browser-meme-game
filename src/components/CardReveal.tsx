@@ -224,10 +224,11 @@ export default function CardReveal() {
       </div>
 
       {/* Progress bar — slim, bottom */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 1.25rem' }}>
+      <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div
           style={{
             width: '100%',
+            maxWidth: '480px',
             height: '10px',
             borderRadius: '9999px',
             background: 'rgba(0,0,0,0.4)',
