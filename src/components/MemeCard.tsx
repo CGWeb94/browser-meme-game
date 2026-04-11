@@ -1,4 +1,21 @@
 import { useState } from 'react';
+import { useGame } from '../context/GameContext';
+import type { MemeSet } from '../types';
+
+function getImagePath(imageIndex: number, memeSet: MemeSet): string {
+  if (memeSet === 'spongebob') {
+    return `/memes/spongebob/${imageIndex}.jpg`;
+  } else if (memeSet === 'general') {
+    return `/memes/general/${imageIndex}.png`;
+  } else {
+    // 'all': 0–30 = spongebob, 31–70 = general
+    if (imageIndex <= 30) {
+      return `/memes/spongebob/${imageIndex}.jpg`;
+    } else {
+      return `/memes/general/${imageIndex - 31}.png`;
+    }
+  }
+}
 
 interface MemeCardProps {
   imageIndex: number;
@@ -24,6 +41,9 @@ export default function MemeCard({
   style,
 }: MemeCardProps) {
   const [imgError, setImgError] = useState(false);
+  const { state } = useGame();
+  const memeSet = state.settings.memeSet ?? 'spongebob';
+  const imagePath = getImagePath(imageIndex, memeSet);
 
   const sizeClasses: Record<string, string> = {
     sm:  'w-32 h-20',        // 128×80
@@ -74,7 +94,7 @@ export default function MemeCard({
     >
       {!imgError ? (
         <img
-          src={`/memes/${imageIndex}.jpg`}
+          src={imagePath}
           alt={`Meme #${imageIndex}`}
           className="w-full h-full object-cover"
           onError={() => setImgError(true)}

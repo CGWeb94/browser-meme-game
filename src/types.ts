@@ -12,11 +12,20 @@ export interface PlayerInfo {
   connected: boolean;
 }
 
+export type MemeSet = 'spongebob' | 'general' | 'all';
+
+export const MEME_SET_SIZES: Record<MemeSet, number> = {
+  spongebob: 31,
+  general: 40,
+  all: 71,
+};
+
 export interface LobbySettings {
   totalRounds: number;
   sentenceMode: 'random' | 'player_generated';
   sentencesPerPlayer: number;
   cardSetSize: number;
+  memeSet: MemeSet;
 }
 
 export interface RoundResult {

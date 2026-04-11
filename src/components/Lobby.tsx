@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../context/GameContext';
+import { MEME_SET_SIZES } from '../types';
+import type { MemeSet } from '../types';
 
 function getAvatarColor(name: string): string {
   const colors = ['#c0392b', '#2980b9', '#8e44ad', '#27ae60', '#e67e22', '#16a085', '#d35400', '#2c3e50'];
@@ -112,7 +114,12 @@ export default function Lobby() {
     dispatch({ type: 'RESET' });
   };
   const updateSetting = (key: string, value: any) => {
-    send('hostSettings', { lobbyId: lobbyId!, settings: { [key]: value } });
+    if (key === 'memeSet') {
+      const newSet = value as MemeSet;
+      send('hostSettings', { lobbyId: lobbyId!, settings: { memeSet: newSet, cardSetSize: MEME_SET_SIZES[newSet] } });
+    } else {
+      send('hostSettings', { lobbyId: lobbyId!, settings: { [key]: value } });
+    }
   };
 
   const connectedPlayers = players.filter(p => p.connected);
@@ -269,17 +276,22 @@ export default function Lobby() {
                 </div>
               </div>
 
-              {/* Kartensatzgröße */}
+              {/* Meme-Set */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                  <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.875rem' }}>Kartensatzgröße</span>
-                  <span style={{ color: '#d4a020', fontWeight: '700', fontSize: '0.875rem' }}>{settings.cardSetSize}</span>
+                  <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.875rem' }}>Meme-Set</span>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem' }}>{settings.cardSetSize} Karten</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', minWidth: '1rem', textAlign: 'right' }}>30</span>
-                  <input type="range" min="30" max="200" step="10" value={settings.cardSetSize} onChange={e => updateSetting('cardSetSize', parseInt(e.target.value))} style={{ flex: 1 }} />
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', minWidth: '1.5rem' }}>200</span>
-                </div>
+                <select
+                  className="input-field"
+                  style={{ fontSize: '0.875rem' }}
+                  value={settings.memeSet ?? 'spongebob'}
+                  onChange={e => updateSetting('memeSet', e.target.value)}
+                >
+                  <option value="spongebob">Spongebob ({MEME_SET_SIZES.spongebob} Memes)</option>
+                  <option value="general">General ({MEME_SET_SIZES.general} Memes)</option>
+                  <option value="all">Alle ({MEME_SET_SIZES.all} Memes)</option>
+                </select>
               </div>
 
               {/* Satzmodus */}
@@ -315,7 +327,7 @@ export default function Lobby() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.875rem' }}>
               {[
                 { label: 'Runden', value: settings.totalRounds },
-                { label: 'Kartensatz', value: settings.cardSetSize },
+                { label: 'Meme-Set', value: settings.memeSet === 'spongebob' ? `Spongebob (${MEME_SET_SIZES.spongebob})` : settings.memeSet === 'general' ? `General (${MEME_SET_SIZES.general})` : `Alle (${MEME_SET_SIZES.all})` },
                 { label: 'Modus', value: settings.sentenceMode === 'random' ? 'Standard' : 'Spieler-Sätze' },
               ].map(row => (
                 <div

@@ -45,13 +45,24 @@ export interface Player {
   sentencesSubmitted: boolean;
 }
 
+// --- Meme Set ---
+
+export type MemeSet = 'spongebob' | 'general' | 'all';
+
+export const MEME_SET_SIZES: Record<MemeSet, number> = {
+  spongebob: 31,
+  general: 40,
+  all: 71,
+};
+
 // --- Lobby Settings ---
 
 export interface LobbySettings {
   totalRounds: number;
   sentenceMode: SentenceMode;
   sentencesPerPlayer: number;  // 1 or 2
-  cardSetSize: number;         // total unique cards available
+  cardSetSize: number;         // total unique cards available (auto from memeSet)
+  memeSet: MemeSet;
 }
 
 // --- Round State ---

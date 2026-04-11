@@ -46,7 +46,7 @@ const initialState: GameState = {
   isHost: false,
   hostId: null,
   players: [],
-  settings: { totalRounds: 5, sentenceMode: 'random', sentencesPerPlayer: 1, cardSetSize: 120 },
+  settings: { totalRounds: 5, sentenceMode: 'random', sentencesPerPlayer: 1, cardSetSize: 31, memeSet: 'spongebob' },
   hand: [],
   jokersRemaining: 3,
   roundNumber: 0,
