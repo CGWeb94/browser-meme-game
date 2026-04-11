@@ -56,9 +56,9 @@ export default function MemeCard({
         ...style,
         // Real playing card: white border, selected gets gold glow on top
         border: selected
-          ? '5px solid #d4a020'
-          : '5px solid rgba(255,255,255,0.92)',
-        borderRadius: '0.75rem',
+          ? '8px solid #d4a020'
+          : '8px solid #ffffff',
+        borderRadius: '0.85rem',
         boxShadow: selected
           ? '0 0 0 2px #d4a020, 0 0 20px rgba(212,160,32,0.5), 0 4px 12px rgba(0,0,0,0.4)'
           : '0 4px 16px rgba(0,0,0,0.5)',
