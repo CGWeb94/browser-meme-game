@@ -5,15 +5,14 @@ interface MemeCardProps {
   selected?: boolean;
   disabled?: boolean;
   faceDown?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   onClick?: () => void;
   style?: React.CSSProperties;
 }
 
 /**
- * Meme card component — landscape (16:9-ish) format.
- * Images are loaded from /memes/{imageIndex}.jpg
- * Falls back to a colored placeholder if the image doesn't exist.
+ * Meme card — always landscape, real-card look (white border, rounded corners).
+ * Images loaded from /memes/{imageIndex}.jpg
  */
 export default function MemeCard({
   imageIndex,
@@ -26,11 +25,11 @@ export default function MemeCard({
 }: MemeCardProps) {
   const [imgError, setImgError] = useState(false);
 
-  // All sizes are landscape (wider than tall)
   const sizeClasses: Record<string, string> = {
-    sm: 'w-32 h-20',   // 128x80
-    md: 'w-48 h-32',   // 192x128
-    lg: 'w-96 h-64',   // 384x256
+    sm:  'w-32 h-20',        // 128×80
+    md:  'w-48 h-32',        // 192×128
+    lg:  'w-96 h-64',        // 384×256
+    xl:  'w-64 h-[170px]',   // 256×170 — CardReveal grid
   };
 
   const hue = (imageIndex * 137) % 360;
@@ -42,7 +41,8 @@ export default function MemeCard({
         style={{
           ...style,
           background: 'linear-gradient(135deg, #1e4d30 0%, #0f2d1a 100%)',
-          border: '2px solid rgba(212, 160, 32, 0.35)',
+          border: '3px solid rgba(255,255,255,0.85)',
+          borderRadius: '0.75rem',
         }}
       >
         <span className="text-3xl opacity-40">🃏</span>
@@ -50,20 +50,22 @@ export default function MemeCard({
     );
   }
 
-  const selectedStyle: React.CSSProperties = selected
-    ? {
-        borderColor: '#d4a020',
-        boxShadow: '0 0 0 2px #d4a020, 0 0 20px rgba(212, 160, 32, 0.45)',
-        transform: 'scale(1.04)',
-      }
-    : {};
-
   return (
     <div
-      style={{ ...style, ...selectedStyle }}
-      className={`${sizeClasses[size]} rounded-xl overflow-hidden border-2 transition-all duration-200 flex-shrink-0
-        ${selected ? 'border-amber-500' : 'border-gray-600'}
-        ${disabled ? 'opacity-60 cursor-default' : 'cursor-pointer hover:border-amber-400/50 hover:scale-105 hover:shadow-lg'}
+      style={{
+        ...style,
+        // Real playing card: white border, selected gets gold glow on top
+        border: selected
+          ? '3px solid #d4a020'
+          : '3px solid rgba(255,255,255,0.88)',
+        borderRadius: '0.75rem',
+        boxShadow: selected
+          ? '0 0 0 2px #d4a020, 0 0 20px rgba(212,160,32,0.5), 0 4px 12px rgba(0,0,0,0.4)'
+          : '0 4px 12px rgba(0,0,0,0.4)',
+        transform: selected ? 'scale(1.03)' : undefined,
+      }}
+      className={`${sizeClasses[size]} overflow-hidden transition-all duration-200 flex-shrink-0
+        ${disabled ? 'opacity-60 cursor-default' : 'cursor-pointer hover:scale-105 hover:shadow-xl'}
       `}
       onClick={disabled ? undefined : onClick}
     >

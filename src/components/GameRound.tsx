@@ -241,57 +241,88 @@ export default function GameRound() {
       <div className="fixed bottom-6 right-6 z-30 flex items-center gap-3">
         {jokerMode && (
           <button
-            className="px-4 py-2 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-            style={{
-              background: 'rgba(0,0,0,0.75)',
-              border: '1px solid rgba(255,255,255,0.2)',
-            }}
             onClick={() => setJokerMode(false)}
+            style={{
+              padding: '0.5rem 1.1rem',
+              borderRadius: '0.75rem',
+              fontSize: '0.85rem',
+              fontWeight: '700',
+              color: '#fff',
+              background: 'rgba(0,0,0,0.8)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
           >
             Abbrechen
           </button>
         )}
-        <button
-          className="relative w-20 h-20 rounded-full transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex flex-col items-center justify-center"
-          style={
-            state.jokersRemaining > 0 && !state.selectedCardId
-              ? {
-                  background: 'linear-gradient(135deg, #d4a020 0%, #9a7010 100%)',
-                  boxShadow: jokerMode
-                    ? '0 0 0 3px #fff, 0 4px 20px rgba(180,140,20,0.7)'
-                    : '0 4px 20px rgba(180,140,20,0.5)',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                }
-              : {
-                  background: 'rgba(50,50,50,0.85)',
-                  border: '2px solid rgba(255,255,255,0.1)',
-                }
-          }
-          onClick={() => setJokerMode(!jokerMode)}
-          disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
-          title={
-            state.jokersRemaining > 0
-              ? `Joker verwenden (${state.jokersRemaining} übrig)`
-              : 'Keine Joker mehr'
-          }
-        >
-          <img
-            src="/joker.svg"
-            alt="Joker"
-            className="w-10 h-10 object-contain"
-          />
-          {/* Count badge */}
-          <span
-            className="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center"
+
+        {/* Joker circular button — matches screenshot style */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+          <button
+            onClick={() => setJokerMode(!jokerMode)}
+            disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
+            title={state.jokersRemaining > 0 ? `Joker (${state.jokersRemaining} übrig)` : 'Keine Joker mehr'}
             style={{
-              background: '#111',
-              border: '2px solid #d4a020',
-              color: '#d4a020',
+              position: 'relative',
+              width: '5.5rem',
+              height: '5.5rem',
+              borderRadius: '50%',
+              border: 'none',
+              cursor: state.jokersRemaining > 0 && !state.selectedCardId ? 'pointer' : 'not-allowed',
+              opacity: state.jokersRemaining === 0 || state.selectedCardId !== null ? 0.4 : 1,
+              transition: 'all 0.2s ease',
+              background: jokerMode
+                ? 'linear-gradient(145deg, #f0c030 0%, #c89010 50%, #a07010 100%)'
+                : 'linear-gradient(145deg, #e8b820 0%, #c09010 50%, #9a7010 100%)',
+              boxShadow: jokerMode
+                ? '0 0 0 3px #fff, 0 6px 25px rgba(180,140,10,0.8), inset 0 2px 4px rgba(255,255,255,0.3)'
+                : '0 6px 20px rgba(180,140,10,0.55), inset 0 2px 3px rgba(255,255,255,0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            {state.jokersRemaining}
+            <img
+              src="/joker.svg"
+              alt="Joker"
+              style={{ width: '3.25rem', height: '3.25rem', objectFit: 'contain', display: 'block' }}
+            />
+            {/* Count badge */}
+            <span
+              style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                width: '1.6rem',
+                height: '1.6rem',
+                borderRadius: '50%',
+                background: '#111',
+                border: '2px solid #d4a020',
+                color: '#d4a020',
+                fontSize: '0.8rem',
+                fontWeight: '800',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {state.jokersRemaining}
+            </span>
+          </button>
+          {/* JOKER label below button */}
+          <span
+            style={{
+              fontSize: '0.7rem',
+              fontWeight: '800',
+              letterSpacing: '0.1em',
+              color: state.jokersRemaining > 0 && !state.selectedCardId ? '#d4a020' : 'rgba(255,255,255,0.3)',
+            }}
+          >
+            JOKER
           </span>
-        </button>
+        </div>
       </div>
 
       {/* ── Modal: Card preview / confirm play ── */}

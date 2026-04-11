@@ -25,38 +25,52 @@ export default function CardReveal() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
       style={{
-        background:
-          'radial-gradient(ellipse at center, #2d6a4a 0%, #1a3d2a 60%, #0f2218 100%)',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #1a3d2a 60%, #0f2218 100%)',
       }}
     >
       {/* Vignette */}
       <div
-        className="fixed inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%)',
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%)',
         }}
       />
 
-      {/* Top info */}
-      <div className="relative z-10 flex items-start justify-between px-6 pt-4">
+      {/* Top info row */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          padding: '1rem 1.5rem 0',
+        }}
+      >
         <div>
-          <div className="text-sm font-bold text-gray-300">
+          <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)' }}>
             Runde {state.roundNumber} / {state.totalRounds}
           </div>
-          <div className="text-xs text-gray-500 mt-0.5">
+          <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>
             Karten: {state.revealedCards.length}
           </div>
         </div>
         {state.votedCardId && (
           <div
-            className="text-xs font-semibold px-3 py-1 rounded-full"
             style={{
+              padding: '0.3rem 0.85rem',
+              borderRadius: '9999px',
               background: 'rgba(34,197,94,0.2)',
               border: '1px solid rgba(34,197,94,0.4)',
               color: '#4ade80',
+              fontSize: '0.8rem',
+              fontWeight: '600',
             }}
           >
             Stimme abgegeben ✓
@@ -65,35 +79,64 @@ export default function CardReveal() {
       </div>
 
       {/* Round text */}
-      <div className="relative z-10 flex justify-center mt-3 px-4">
+      <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '0.75rem 1.5rem 0' }}>
         <div
-          className="max-w-xl w-full rounded-2xl px-6 py-4 text-center"
           style={{
-            background: 'rgba(0,0,0,0.58)',
+            width: '100%',
+            maxWidth: '600px',
+            background: 'rgba(0,0,0,0.6)',
             border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '1rem',
+            padding: '1rem 1.5rem',
+            textAlign: 'center',
           }}
         >
-          <p className="text-lg font-bold text-white leading-snug">{state.roundText}</p>
+          <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', lineHeight: 1.4 }}>
+            {state.roundText}
+          </p>
         </div>
       </div>
 
       {/* Error */}
       {showError && state.error && (
         <div
-          className="relative z-10 mx-4 mt-3 rounded-xl p-2 text-center text-sm"
           style={{
+            position: 'relative',
+            zIndex: 10,
+            margin: '0.5rem 1.5rem 0',
             background: 'rgba(220,38,38,0.25)',
             border: '1px solid rgba(220,38,38,0.4)',
+            borderRadius: '0.75rem',
+            padding: '0.5rem 1rem',
             color: '#fca5a5',
+            fontSize: '0.875rem',
+            textAlign: 'center',
           }}
         >
           {state.error}
         </div>
       )}
 
-      {/* Revealed cards grid */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-6">
-        <div className="flex flex-wrap justify-center gap-6 max-w-3xl w-full">
+      {/* ── Cards grid ── 3 columns, xl size, like the screenshot */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.25rem 1.5rem',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, auto)',
+            gap: '1.5rem 1.25rem',
+            justifyContent: 'center',
+          }}
+        >
           {state.revealedCards.map((rc, i) => {
             const isOwnCard = rc.cardId === state.selectedCardId;
             const canVote = !state.votedCardId && !isOwnCard;
@@ -102,18 +145,34 @@ export default function CardReveal() {
             return (
               <div
                 key={rc.cardId}
-                className="flex flex-col items-center gap-3 animate-slide-up"
-                style={{ animationDelay: `${i * 100}ms` }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  animation: `slideUp 0.35s ease-out ${i * 80}ms both`,
+                }}
               >
-                {/* Card with number badge */}
-                <div className="relative">
-                  {/* Number badge */}
+                {/* Card + number badge */}
+                <div style={{ position: 'relative' }}>
+                  {/* Number badge — white circle, dark number, top-left */}
                   <div
-                    className="absolute -top-3 -left-3 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold z-10 shadow-lg"
                     style={{
-                      background: 'rgba(15,15,15,0.92)',
-                      border: '2px solid rgba(212,160,32,0.65)',
-                      color: '#d4a020',
+                      position: 'absolute',
+                      top: '-10px',
+                      left: '-10px',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      background: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: '800',
+                      fontSize: '0.8rem',
+                      color: '#1a1a1a',
+                      zIndex: 10,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
                     }}
                   >
                     {i + 1}
@@ -121,37 +180,36 @@ export default function CardReveal() {
 
                   <MemeCard
                     imageIndex={rc.imageIndex}
-                    size="md"
+                    size="xl"
                     selected={hasVoted}
                     disabled={!canVote}
                     onClick={canVote ? () => handleVote(rc.cardId) : undefined}
                   />
                 </div>
 
-                {/* Vote button / status */}
+                {/* Abstimmen button or label */}
                 {isOwnCard ? (
-                  <span className="text-xs text-gray-500 italic">Deine Karte</span>
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                    Deine Karte
+                  </span>
                 ) : (
                   <button
-                    className="px-5 py-1.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-                    style={
-                      hasVoted
-                        ? {
-                            background: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
-                            color: '#fff',
-                          }
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 1rem',
+                      borderRadius: '0.6rem',
+                      fontWeight: '700',
+                      fontSize: '0.875rem',
+                      border: 'none',
+                      cursor: state.votedCardId ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.15s ease',
+                      ...(hasVoted
+                        ? { background: 'linear-gradient(135deg, #22c55e, #15803d)', color: '#fff' }
                         : state.votedCardId
-                          ? {
-                              background: 'rgba(50,50,50,0.5)',
-                              color: 'rgba(255,255,255,0.25)',
-                              cursor: 'not-allowed',
-                            }
-                          : {
-                              background: 'linear-gradient(135deg, #d4a020 0%, #9a7010 100%)',
-                              color: '#1a0f00',
-                              cursor: 'pointer',
-                            }
-                    }
+                          ? { background: 'rgba(50,50,50,0.5)', color: 'rgba(255,255,255,0.25)' }
+                          : { background: 'linear-gradient(135deg, #d4a020, #9a7010)', color: '#1a0f00' }
+                      ),
+                    }}
                     onClick={canVote ? () => handleVote(rc.cardId) : undefined}
                     disabled={!!state.votedCardId}
                   >
@@ -164,15 +222,40 @@ export default function CardReveal() {
         </div>
       </div>
 
-      {/* Bottom progress bar */}
-      <div className="relative z-10 px-6 pb-6">
-        <div className="progress-track">
-          <div className="progress-fill" style={{ width: `${progressPct}%` }} />
-          <span className="progress-label">
-            {state.playersReady}/{state.totalPlayers} Spieler haben abgestimmt
-          </span>
+      {/* Progress bar — slim, bottom */}
+      <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 1.25rem' }}>
+        <div
+          style={{
+            width: '100%',
+            height: '10px',
+            borderRadius: '9999px',
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              borderRadius: '9999px',
+              background: 'linear-gradient(90deg, #d4a020, #f0c040)',
+              width: `${progressPct}%`,
+              transition: 'width 0.5s ease',
+            }}
+          />
         </div>
+        <p style={{ textAlign: 'center', marginTop: '0.4rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
+          {state.playersReady}/{state.totalPlayers} Spieler haben abgestimmt
+        </p>
       </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
