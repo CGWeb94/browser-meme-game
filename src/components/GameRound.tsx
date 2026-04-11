@@ -3,37 +3,81 @@ import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import PlayerSeats from './PlayerSeats';
 
+// Scattered card suits as background watermark
+const WATERMARK_SUITS = [
+  { suit: '♠', top: '8%',  left: '4%',   size: '5rem',  rotate: '-15deg', opacity: 0.06 },
+  { suit: '♥', top: '12%', right: '5%',  size: '7rem',  rotate: '10deg',  opacity: 0.05 },
+  { suit: '♦', top: '42%', left: '2%',   size: '4.5rem',rotate: '5deg',   opacity: 0.07 },
+  { suit: '♣', top: '55%', right: '8%',  size: '6rem',  rotate: '-8deg',  opacity: 0.05 },
+  { suit: '♠', top: '28%', left: '14%',  size: '3.5rem',rotate: '20deg',  opacity: 0.05 },
+  { suit: '♥', top: '22%', right: '18%', size: '5rem',  rotate: '-5deg',  opacity: 0.06 },
+  { suit: '♦', bottom: '30%', left: '22%', size: '4rem',rotate: '-12deg', opacity: 0.05 },
+  { suit: '♣', bottom: '20%', right: '28%', size: '4.5rem',rotate: '8deg',opacity: 0.04 },
+];
+
+function CardSuitsWatermark() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+      {WATERMARK_SUITS.map((s, i) => (
+        <span
+          key={i}
+          style={{
+            position: 'absolute',
+            top: s.top,
+            bottom: s.bottom,
+            left: s.left,
+            right: s.right,
+            fontSize: s.size,
+            opacity: s.opacity,
+            transform: `rotate(${s.rotate})`,
+            color: '#000',
+            lineHeight: 1,
+          }}
+        >
+          {s.suit}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Computes the fan rotation for each card.
+ * transformOrigin is set to 'bottom center' so cards fan out from the bottom.
+ */
+function getFanRotation(index: number, total: number): number {
+  if (total <= 1) return 0;
+  const maxAngle = 14;
+  const centerIndex = (total - 1) / 2;
+  const normalizedPos = (index - centerIndex) / centerIndex;
+  return normalizedPos * maxAngle;
+}
+
 export default function GameRound() {
   const { state, send, dispatch } = useGame();
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [jokerMode, setJokerMode] = useState(false);
-  const [playedCardAnimation, setPlayedCardAnimation] = useState<{ cardId: string; cardIndex: number } | null>(null);
-  const [drawnCard, setDrawnCard] = useState<any>(null);
-
-  // Handle drawn card animation
-  useEffect(() => {
-    if (state.hand.length > 0 && drawnCard === null) {
-      const lastCard = state.hand[state.hand.length - 1];
-      if (lastCard && !playedCardAnimation) {
-        setDrawnCard(lastCard);
-        const timer = setTimeout(() => setDrawnCard(null), 600);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [state.hand.length, playedCardAnimation, drawnCard]);
+  const [playedCardAnimation, setPlayedCardAnimation] = useState<{
+    cardId: string;
+    imageIndex: number;
+  } | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   const handleSelectCard = (cardId: string) => {
-    const cardIndex = state.hand.findIndex(c => c.id === cardId);
-    setPlayedCardAnimation({ cardId, cardIndex });
+    const card = state.hand.find(c => c.id === cardId);
+    if (!card) return;
+    setPlayedCardAnimation({ cardId, imageIndex: card.imageIndex });
     dispatch({ type: 'SELECT_CARD', cardId });
     send('selectCard', { lobbyId: state.lobbyId!, cardId });
     setPreviewCard(null);
   };
 
-  // Cleanup animation after card is removed from hand
   useEffect(() => {
-    if (playedCardAnimation && !state.hand.find(c => c.id === playedCardAnimation.cardId)) {
-      const timer = setTimeout(() => setPlayedCardAnimation(null), 600);
+    if (
+      playedCardAnimation &&
+      !state.hand.find(c => c.id === playedCardAnimation.cardId)
+    ) {
+      const timer = setTimeout(() => setPlayedCardAnimation(null), 700);
       return () => clearTimeout(timer);
     }
   }, [state.hand, playedCardAnimation]);
@@ -44,160 +88,232 @@ export default function GameRound() {
     setJokerMode(false);
   };
 
-
-  // Calculate card overlap layout (simple horizontal with negative margin)
-  const getCardTransform = (index: number) => {
-    return {
-      marginRight: '-48px', // overlap cards
-    };
-  };
-
-  // Show all cards immediately, but stagger the animation
-  const visibleHand = state.hand;
+  const progressPct = state.totalPlayers
+    ? (state.playersReady / state.totalPlayers) * 100
+    : 0;
 
   return (
-    <div className="min-h-screen flex flex-col p-4 relative"
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
       style={{
-        background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)'
+        background:
+          'radial-gradient(ellipse at center, #2d6a4a 0%, #1a3d2a 60%, #0f2218 100%)',
       }}
     >
-      {/* Vignette overlay */}
-      <div className="absolute inset-0 pointer-events-none"
+      <CardSuitsWatermark />
+
+      {/* Vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)'
+          background:
+            'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%)',
         }}
       />
 
       {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-300">
-          Runde <span className="text-white font-bold">{state.roundNumber}</span> / {state.totalRounds}
+      <div className="relative z-10 flex items-center justify-end px-5 pt-4">
+        <div
+          className="px-4 py-1.5 rounded-full text-sm font-bold text-gray-300"
+          style={{
+            background: 'rgba(0,0,0,0.55)',
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}
+        >
+          Runde <span className="text-white">{state.roundNumber}</span> /{' '}
+          {state.totalRounds}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-400">
-            Karten: <span className="text-green-400">{state.hand.length}</span>
+      </div>
+
+      {/* Round text */}
+      <div className="relative z-10 flex justify-center mt-4 px-4">
+        <div
+          className="max-w-lg w-full rounded-2xl px-6 py-4 text-center"
+          style={{
+            background: 'rgba(0,0,0,0.58)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">
+            Rundentext
+          </p>
+          <p className="text-xl font-bold text-white leading-snug">{state.roundText}</p>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="relative z-10 flex justify-center mt-4 px-4">
+        <div className="max-w-lg w-full progress-track">
+          <div
+            className="progress-fill"
+            style={{ width: `${progressPct}%` }}
+          />
+          <span className="progress-label text-sm font-semibold">
+            {state.playersReady}/{state.totalPlayers} Spieler bereit
           </span>
         </div>
       </div>
 
-      {/* Round text - centered top */}
-      <div className="card-container text-center mb-6 relative z-10 max-w-2xl mx-auto">
-        <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Rundentext</p>
-        <p className="text-xl font-semibold text-white leading-relaxed">
-          {state.roundText}
-        </p>
-      </div>
-
-      {/* Status */}
-      <div className="text-center mb-6 relative z-10">
-        {state.selectedCardId ? (
-          <div className="space-y-2">
-            <p className="text-green-400 text-sm font-medium">Karte gespielt! Warte auf andere...</p>
-            <p className="text-gray-400 text-xs">{state.playersReady} / {state.totalPlayers} Spieler bereit</p>
-            <div className="w-48 mx-auto bg-gray-800/50 rounded-full h-1.5">
-              <div
-                className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${state.totalPlayers ? (state.playersReady / state.totalPlayers) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-        ) : (
-          <p className="text-indigo-300 text-sm">Wähle eine Karte aus deiner Hand</p>
-        )}
-      </div>
-
-      {/* Played cards in center */}
+      {/* Played face-down cards in center (only while choosing) */}
       {state.playersReady > 0 && (
-        <div className="flex-1 flex flex-col items-center justify-center relative z-10">
-          <div className="flex flex-wrap gap-3 justify-center items-center">
-            {Array.from({ length: state.playersReady }).map((_, i) => (
-              <MemeCard key={`played-${i}`} imageIndex={0} faceDown size="md" />
-            ))}
-          </div>
-          <p className="text-gray-400 text-xs mt-4">
-            {state.playersReady} / {state.totalPlayers} Spieler haben gespielt
-          </p>
+        <div className="relative z-10 flex items-center justify-center gap-3 mt-6 px-4 min-h-[80px]">
+          {Array.from({ length: state.playersReady }).map((_, i) => (
+            <MemeCard key={`played-${i}`} imageIndex={0} faceDown size="sm" />
+          ))}
         </div>
       )}
 
-      {/* Cards - simple horizontal overlap at bottom center */}
-      <div className="flex-1 flex flex-col justify-end items-center pb-8 relative z-20">
-        <div className="flex items-end justify-center gap-0">
-          {visibleHand.map((card, i) => (
-            <div
-              key={card.id}
-              className="group relative transition-all duration-200 animate-deal-in hover:scale-125 hover:-translate-y-6 hover:z-50"
-              style={{
-                marginRight: '-48px',
-                zIndex: state.selectedCardId === card.id ? 50 : 20 + i,
-                animationDelay: `${i * 150}ms`,
-              }}
-            >
-              <button
-                className={`relative block transition-all duration-200 ${
-                  jokerMode ? 'cursor-swap ring-4 ring-green-500/60 rounded-xl' : 'cursor-pointer'
-                }
-                  ${previewCard === card.id ? 'scale-125 -translate-y-6' : ''}
-                `}
-                onClick={() => {
-                  if (jokerMode) {
-                    handleUseJoker(card.id);
-                  } else {
-                    setPreviewCard(card.id);
-                  }
+      {/* ── HAND CARDS — fan layout at the bottom ── */}
+      <div
+        className="relative z-20 flex justify-center items-end mt-auto pb-6"
+        style={{ minHeight: '180px' }}
+      >
+        <div className="relative flex items-end justify-center">
+          {state.hand.map((card, i) => {
+            const angle = getFanRotation(i, state.hand.length);
+            const isHovered = hoveredCard === card.id;
+            const isSelected = state.selectedCardId === card.id;
+            const isDisabled =
+              state.selectedCardId !== null && !isSelected && !jokerMode;
+
+            return (
+              <div
+                key={card.id}
+                className="relative"
+                style={{
+                  // Fan rotation on the outer wrapper
+                  transform: `rotate(${angle}deg)`,
+                  transformOrigin: 'bottom center',
+                  zIndex: isHovered || isSelected ? 100 : 10 + i,
+                  marginRight: i < state.hand.length - 1 ? '-28px' : '0',
+                  transition: 'z-index 0s',
                 }}
-                disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
+                onMouseEnter={() => setHoveredCard(card.id)}
+                onMouseLeave={() => setHoveredCard(null)}
               >
-                <MemeCard
-                  imageIndex={card.imageIndex}
-                  selected={state.selectedCardId === card.id}
-                  disabled={state.selectedCardId !== null && state.selectedCardId !== card.id}
-                />
-              </button>
-            </div>
-          ))}
+                {/* Deal-in animation wrapper */}
+                <div
+                  className="animate-deal-in"
+                  style={{ animationDelay: `${i * 120}ms` }}
+                >
+                  <button
+                    className={`block transition-all duration-200
+                      ${isHovered && !isDisabled ? '-translate-y-5 scale-110' : ''}
+                      ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                    `}
+                    onClick={() => {
+                      if (isDisabled) return;
+                      if (jokerMode) {
+                        handleUseJoker(card.id);
+                      } else {
+                        setPreviewCard(card.id);
+                      }
+                    }}
+                  >
+                    <div className="relative">
+                      <MemeCard
+                        imageIndex={card.imageIndex}
+                        selected={isSelected}
+                        size="md"
+                      />
+                      {/* Joker mode overlay */}
+                      {jokerMode && !isDisabled && (
+                        <div
+                          className="absolute inset-0 flex items-center justify-center rounded-xl"
+                          style={{
+                            background: 'rgba(212,160,32,0.25)',
+                            border: '3px solid rgba(212,160,32,0.8)',
+                          }}
+                        >
+                          <span className="text-2xl drop-shadow">↔️</span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Joker button - bottom right */}
-      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-2">
+      {/* Joker button — bottom right, circular gold */}
+      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-3">
         {jokerMode && (
           <button
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors"
+            className="px-4 py-2 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+            style={{
+              background: 'rgba(0,0,0,0.75)',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}
             onClick={() => setJokerMode(false)}
           >
             Abbrechen
           </button>
         )}
         <button
-          className={`px-6 py-4 rounded-xl font-semibold transition-all flex items-center gap-3 shadow-lg
-            ${state.jokersRemaining > 0 && !state.selectedCardId
-              ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer shadow-green-600/50'
-              : 'bg-gray-700 opacity-50 text-gray-400 cursor-not-allowed'
-            }
-          `}
+          className="relative w-20 h-20 rounded-full transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex flex-col items-center justify-center"
+          style={
+            state.jokersRemaining > 0 && !state.selectedCardId
+              ? {
+                  background: 'linear-gradient(135deg, #d4a020 0%, #9a7010 100%)',
+                  boxShadow: jokerMode
+                    ? '0 0 0 3px #fff, 0 4px 20px rgba(180,140,20,0.7)'
+                    : '0 4px 20px rgba(180,140,20,0.5)',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                }
+              : {
+                  background: 'rgba(50,50,50,0.85)',
+                  border: '2px solid rgba(255,255,255,0.1)',
+                }
+          }
           onClick={() => setJokerMode(!jokerMode)}
           disabled={state.jokersRemaining === 0 || state.selectedCardId !== null}
-          title={state.jokersRemaining > 0 ? `Joker verwenden (${state.jokersRemaining} übrig)` : 'Keine Joker mehr verfügbar'}
+          title={
+            state.jokersRemaining > 0
+              ? `Joker verwenden (${state.jokersRemaining} übrig)`
+              : 'Keine Joker mehr'
+          }
         >
-          <img src="/joker.svg" alt="Joker" style={{ width: '5rem', height: '7rem' }} className="object-contain" />
-          <span className="text-lg">{state.jokersRemaining}</span>
+          <img
+            src="/joker.svg"
+            alt="Joker"
+            className="w-10 h-10 object-contain"
+          />
+          {/* Count badge */}
+          <span
+            className="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center"
+            style={{
+              background: '#111',
+              border: '2px solid #d4a020',
+              color: '#d4a020',
+            }}
+          >
+            {state.jokersRemaining}
+          </span>
         </button>
       </div>
 
-      {/* Modal - Card preview */}
+      {/* ── Modal: Card preview / confirm play ── */}
       {previewCard && (
         <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.78)' }}
           onClick={() => setPreviewCard(null)}
         >
           <div
-            className="bg-gray-900 rounded-2xl p-8 max-w-lg w-full mx-4 space-y-6 animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
+            className="flex flex-col items-center gap-6 p-6 animate-slide-up"
+            onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-2xl font-bold text-center">Diese Karte spielen?</h2>
-
-            <div className="flex justify-center">
+            {/* Card with gold glow ring */}
+            <div
+              style={{
+                borderRadius: '1rem',
+                overflow: 'hidden',
+                boxShadow:
+                  '0 0 0 4px #d4a020, 0 0 60px rgba(212, 160, 32, 0.65)',
+              }}
+            >
               {state.hand.find(c => c.id === previewCard) && (
                 <MemeCard
                   imageIndex={state.hand.find(c => c.id === previewCard)!.imageIndex}
@@ -206,46 +322,42 @@ export default function GameRound() {
               )}
             </div>
 
-            <div className="flex gap-4">
+            {/* Action buttons */}
+            <div className="flex gap-4 w-full max-w-sm">
               <button
-                className="flex-1 btn-secondary"
+                className="btn-secondary flex-1"
                 onClick={() => setPreviewCard(null)}
               >
-                Abbrechen
+                Zurück
               </button>
               <button
-                className="flex-1 btn-primary"
+                className="btn-primary flex-1"
                 onClick={() => handleSelectCard(previewCard)}
               >
-                Spielen
+                Karte spielen
               </button>
             </div>
           </div>
         </div>
       )}
 
-
-      {/* Card play animation - flying card from hand to center */}
+      {/* Flying card animation when a card is played */}
       {playedCardAnimation && (
         <div className="fixed inset-0 pointer-events-none z-40">
           <div
             className="absolute"
             style={{
-              left: 'calc(50% - 48px)',
-              top: 'calc(50% + 120px)',
-              animation: 'cardPlay 0.6s ease-in-out forwards',
+              left: 'calc(50% - 96px)',
+              bottom: '160px',
+              animation: 'cardPlayUp 0.7s ease-in-out forwards',
             }}
           >
-            <MemeCard
-              imageIndex={state.hand.find(c => c.id === playedCardAnimation.cardId)?.imageIndex ?? 0}
-              faceDown
-              size="md"
-            />
+            <MemeCard imageIndex={playedCardAnimation.imageIndex} faceDown size="md" />
           </div>
         </div>
       )}
 
-      {/* Player seats around table */}
+      {/* Player seats (left/right sides, hidden on small screens) */}
       <PlayerSeats
         players={state.players}
         currentPlayerId={state.playerId}
@@ -255,18 +367,10 @@ export default function GameRound() {
       />
 
       <style>{`
-        @keyframes cardPlay {
-          0% {
-            transform: translateY(280px) scale(1) rotateZ(0deg);
-            opacity: 1;
-          }
-          50% {
-            transform: translateY(100px) scale(1.05) rotateZ(-5deg);
-          }
-          100% {
-            transform: translateY(0px) scale(1) rotateZ(0deg);
-            opacity: 1;
-          }
+        @keyframes cardPlayUp {
+          0%   { transform: translateY(0)     scale(1)    rotate(0deg);   opacity: 1; }
+          60%  { transform: translateY(-280px) scale(1.05) rotate(-6deg); opacity: 1; }
+          100% { transform: translateY(-340px) scale(0.85) rotate(0deg);  opacity: 0; }
         }
       `}</style>
     </div>

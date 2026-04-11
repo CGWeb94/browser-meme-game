@@ -20,91 +20,129 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse at center, #2d6a4a 0%, #0f2d1a 100%)' }}>
-      <div className="card-container max-w-md w-full space-y-8 animate-slide-up bg-gray-900/80 border border-green-800/50">
-        {/* Logo */}
-        <div className="text-center space-y-2">
-          <div className="text-6xl">🃏</div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-            Meme Card Game
-          </h1>
-          <p className="text-gray-500 text-sm">Das ultimative Meme-Kartenspiel</p>
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: '#111111' }}
+    >
+      {/* Outer rounded panel with inset shadow */}
+      <div
+        className="w-full max-w-sm"
+        style={{
+          background: 'radial-gradient(ellipse at 35% 25%, #272727 0%, #1a1a1a 100%)',
+          borderRadius: '2.5rem',
+          padding: '3rem 2.5rem',
+          boxShadow:
+            'inset 0 1px 1px rgba(255,255,255,0.06), 0 30px 70px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04)',
+        }}
+      >
+        {/* Connection indicator */}
+        <div className="flex justify-end mb-6">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                state.connected ? 'bg-green-400' : 'bg-red-400 animate-pulse'
+              }`}
+            />
+            <span className={state.connected ? 'text-green-400' : 'text-red-400'}>
+              {state.connected ? 'Online' : 'Verbinde...'}
+            </span>
+          </div>
         </div>
 
-        {/* Connection status */}
-        <div className="flex items-center justify-center gap-2 text-sm">
-          <span className={`w-2 h-2 rounded-full ${state.connected ? 'bg-green-400' : 'bg-red-400 animate-pulse'}`} />
-          <span className={state.connected ? 'text-green-400' : 'text-red-400'}>
-            {state.connected ? 'Verbunden' : 'Verbinde...'}
-          </span>
+        {/* Title */}
+        <div className="text-center mb-10">
+          <h1
+            className="font-black text-white tracking-tight"
+            style={{ fontSize: '2.6rem', lineHeight: 1.1, textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
+          >
+            MEME POKER NIGHT
+          </h1>
         </div>
 
         {/* Name input */}
-        <div>
-          <label className="block text-sm text-gray-400 mb-2">Dein Name</label>
-          <input
-            className="input-field"
-            placeholder="Name eingeben..."
-            value={name}
-            onChange={e => setName(e.target.value)}
-            maxLength={20}
-            onKeyDown={e => e.key === 'Enter' && mode === 'menu' && handleCreate()}
-          />
+        <div className="mb-4">
+          <label className="block text-xs text-gray-400 mb-2 uppercase tracking-widest">
+            Spielername
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-base">👤</span>
+            <input
+              className="input-field pl-9"
+              placeholder="Ihr Name hier..."
+              value={name}
+              onChange={e => setName(e.target.value)}
+              maxLength={20}
+              onKeyDown={e => e.key === 'Enter' && mode === 'menu' && handleCreate()}
+            />
+          </div>
         </div>
 
-        {mode === 'menu' ? (
-          <div className="space-y-3">
-            <button
-              className="btn-primary w-full text-lg"
-              onClick={handleCreate}
-              disabled={!state.connected || !name.trim()}
-            >
-              Lobby erstellen
-            </button>
-            <button
-              className="btn-secondary w-full"
-              onClick={() => setMode('join')}
-              disabled={!state.connected || !name.trim()}
-            >
-              Lobby beitreten
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm text-gray-400 mb-2">Lobby-Code</label>
-              <input
-                className="input-field text-center text-2xl tracking-[0.3em] uppercase font-mono"
-                placeholder="ABC123"
-                value={lobbyCode}
-                onChange={e => setLobbyCode(e.target.value.toUpperCase())}
-                maxLength={6}
-                onKeyDown={e => e.key === 'Enter' && handleJoin()}
-                autoFocus
-              />
-            </div>
-            <button
-              className="btn-primary w-full"
-              onClick={handleJoin}
-              disabled={!state.connected || !name.trim() || lobbyCode.length < 6}
-            >
-              Beitreten
-            </button>
-            <button
-              className="btn-secondary w-full"
-              onClick={() => setMode('menu')}
-            >
-              Zurück
-            </button>
+        {/* Join code input (only in join mode) */}
+        {mode === 'join' && (
+          <div className="mb-4">
+            <label className="block text-xs text-gray-400 mb-2 uppercase tracking-widest">
+              Lobby-Code
+            </label>
+            <input
+              className="input-field text-center text-2xl tracking-[0.3em] uppercase font-mono"
+              placeholder="ABC123"
+              value={lobbyCode}
+              onChange={e => setLobbyCode(e.target.value.toUpperCase())}
+              maxLength={6}
+              onKeyDown={e => e.key === 'Enter' && handleJoin()}
+              autoFocus
+            />
           </div>
         )}
 
+        {/* Buttons */}
+        <div className="flex gap-3 mt-7">
+          {mode === 'menu' ? (
+            <>
+              <button
+                className="btn-primary flex-1"
+                onClick={handleCreate}
+                disabled={!state.connected || !name.trim()}
+              >
+                Lobby erstellen
+              </button>
+              <button
+                className="btn-secondary flex-1"
+                onClick={() => setMode('join')}
+                disabled={!state.connected || !name.trim()}
+              >
+                Lobby beitreten
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn-secondary flex-1" onClick={() => setMode('menu')}>
+                Zurück
+              </button>
+              <button
+                className="btn-primary flex-1"
+                onClick={handleJoin}
+                disabled={!state.connected || !name.trim() || lobbyCode.length < 6}
+              >
+                Beitreten
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Error */}
         {state.error && (
-          <div className="bg-red-900/30 border border-red-800 rounded-xl p-3 text-red-400 text-sm text-center">
+          <div
+            className="mt-5 rounded-xl p-3 text-sm text-center"
+            style={{
+              background: 'rgba(220,38,38,0.2)',
+              border: '1px solid rgba(220,38,38,0.4)',
+              color: '#fca5a5',
+            }}
+          >
             {state.error}
             <button
-              className="block mx-auto mt-2 text-xs text-red-500 underline"
+              className="block mx-auto mt-1 text-xs underline opacity-70"
               onClick={() => dispatch({ type: 'CLEAR_ERROR' })}
             >
               Schließen
