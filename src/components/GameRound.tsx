@@ -128,16 +128,17 @@ export default function GameRound() {
       {/* Round text */}
       <div className="relative z-10 flex justify-center mt-4 px-4">
         <div
-          className="max-w-lg w-full rounded-2xl px-6 py-4 text-center"
+          className="max-w-xl w-full rounded-2xl px-6 py-4 text-center"
           style={{
-            background: 'rgba(0,0,0,0.58)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(0,0,0,0.62)',
+            border: '1px solid rgba(212,160,32,0.45)',
+            boxShadow: '0 0 20px rgba(0,0,0,0.3)',
           }}
         >
-          <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'rgba(212,160,32,0.7)' }}>
             Rundentext
           </p>
-          <p className="text-xl font-bold text-white leading-snug">{state.roundText}</p>
+          <p className="text-2xl font-bold text-white leading-snug">{state.roundText}</p>
         </div>
       </div>
 

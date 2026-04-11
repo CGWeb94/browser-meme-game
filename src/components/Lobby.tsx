@@ -148,20 +148,22 @@ export default function Lobby() {
           zIndex: 10,
           flex: 1,
           display: 'flex',
-          gap: '1rem',
-          padding: '0.75rem 1.25rem',
+          gap: '1.25rem',
+          padding: '0.75rem 1.5rem',
           alignItems: 'flex-start',
+          maxWidth: '1100px',
+          margin: '0 auto',
+          width: '100%',
         }}
       >
         {/* ── Players panel ── */}
         <div
           style={{
             flex: 1,
-            maxWidth: '340px',
             background: 'rgba(0,0,0,0.38)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '1rem',
-            padding: '1rem 1rem',
+            padding: '1.25rem',
           }}
         >
           <PanelHeading>Players ({connectedPlayers.length}/{players.length})</PanelHeading>
@@ -173,9 +175,9 @@ export default function Lobby() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.65rem',
-                  padding: '0.55rem 0.75rem',
-                  borderRadius: '0.65rem',
+                  gap: '0.75rem',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.75rem',
                   background: p.id === state.playerId ? 'rgba(212,160,32,0.1)' : 'rgba(0,0,0,0.3)',
                   border: p.id === state.playerId ? '1px solid rgba(212,160,32,0.3)' : '1px solid rgba(255,255,255,0.06)',
                   opacity: p.connected ? 1 : 0.45,
@@ -236,11 +238,10 @@ export default function Lobby() {
         <div
           style={{
             flex: 1,
-            maxWidth: '340px',
             background: 'rgba(0,0,0,0.38)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '1rem',
-            padding: '1rem 1rem',
+            padding: '1.25rem',
           }}
         >
           <PanelHeading>
@@ -352,7 +353,7 @@ export default function Lobby() {
       )}
 
       {/* Bottom buttons */}
-      <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '1rem', padding: '1rem 1.25rem' }}>
+      <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '1rem', padding: '1rem 1.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
         <button className="btn-secondary" style={{ flexShrink: 0, padding: '0.85rem 2rem', fontSize: '1rem' }} onClick={handleLeave}>
           Verlassen
         </button>

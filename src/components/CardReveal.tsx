@@ -83,15 +83,16 @@ export default function CardReveal() {
         <div
           style={{
             width: '100%',
-            maxWidth: '600px',
-            background: 'rgba(0,0,0,0.6)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            maxWidth: '620px',
+            background: 'rgba(0,0,0,0.62)',
+            border: '1px solid rgba(212,160,32,0.45)',
             borderRadius: '1rem',
-            padding: '1rem 1.5rem',
+            padding: '1rem 2rem',
             textAlign: 'center',
+            boxShadow: '0 0 20px rgba(0,0,0,0.3)',
           }}
         >
-          <p style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', lineHeight: 1.4 }}>
+          <p style={{ fontSize: '1.4rem', fontWeight: '700', color: '#fff', lineHeight: 1.4 }}>
             {state.roundText}
           </p>
         </div>

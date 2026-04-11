@@ -44,59 +44,40 @@ export default function Landing() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#0c0c0c',
+        background: "url('/landing-bg.png') center/cover no-repeat, #0c0c0c",
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1.5rem',
+        position: 'relative',
       }}
     >
-      {/* ── Large poker-table oval ── */}
+      {/* Connection dot — tiny, top-right, barely visible */}
+      <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 10 }}>
+        <span
+          title={state.connected ? 'Verbunden' : 'Verbinde...'}
+          style={{
+            width: '8px', height: '8px', borderRadius: '50%',
+            background: state.connected ? '#4ade80' : '#f87171',
+            display: 'inline-block',
+            opacity: 0.6,
+          }}
+        />
+      </div>
+
+      {/* Content centered over the background */}
       <div
         style={{
-          width: '90vw',
-          maxWidth: '1200px',
-          minHeight: '72vh',
-          background:
-            'radial-gradient(ellipse at center, #2c2c2c 0%, #1d1d1d 55%, #111 100%)',
-          borderRadius: '9rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '5rem 3rem',
+          width: '100%',
+          maxWidth: '560px',
           position: 'relative',
-          boxShadow:
-            'inset 0 2px 3px rgba(255,255,255,0.04), inset 0 -4px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+          zIndex: 10,
         }}
       >
-        {/* Connection indicator — subtle, top-right inside oval */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '2rem',
-            right: '3rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.75rem',
-          }}
-        >
-          <span
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: state.connected ? '#4ade80' : '#f87171',
-              display: 'inline-block',
-              animation: state.connected ? 'none' : 'pulse 1.5s infinite',
-            }}
-          />
-          <span style={{ color: state.connected ? '#4ade80' : '#f87171' }}>
-            {state.connected ? 'Online' : 'Verbinde...'}
-          </span>
-        </div>
-
         {/* Title */}
         <h1
           style={{
@@ -107,26 +88,26 @@ export default function Landing() {
             letterSpacing: '-0.02em',
             lineHeight: 1.05,
             marginBottom: '3rem',
-            textShadow: '0 4px 30px rgba(0,0,0,0.5)',
+            textShadow: '0 4px 30px rgba(0,0,0,0.7)',
           }}
         >
           MEME POKER NIGHT
         </h1>
 
-        {/* Form container — compact, centered */}
-        <div style={{ width: '100%', maxWidth: '440px', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        {/* Form container */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Name input */}
           <div>
             <label
               style={{
                 display: 'block',
-                color: 'rgba(255,255,255,0.75)',
-                fontSize: '0.8rem',
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.875rem',
                 fontWeight: '600',
-                letterSpacing: '0.08em',
+                letterSpacing: '0.07em',
                 textTransform: 'uppercase',
-                marginBottom: '0.4rem',
+                marginBottom: '0.5rem',
               }}
             >
               Spielername
@@ -135,7 +116,7 @@ export default function Landing() {
               <PersonIcon />
               <input
                 className="input-field"
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.75rem', fontSize: '1rem', padding: '0.9rem 1rem 0.9rem 2.75rem' }}
                 placeholder="Ihr Name hier..."
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -175,12 +156,12 @@ export default function Landing() {
           )}
 
           {/* Buttons */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.875rem', marginTop: '0.25rem' }}>
             {mode === 'menu' ? (
               <>
                 <button
                   className="btn-primary"
-                  style={{ flex: 1, fontSize: '1rem', padding: '0.85rem' }}
+                  style={{ flex: 1, fontSize: '1.05rem', padding: '0.95rem 1rem', fontWeight: '700' }}
                   onClick={handleCreate}
                   disabled={!state.connected || !name.trim()}
                 >
@@ -188,7 +169,7 @@ export default function Landing() {
                 </button>
                 <button
                   className="btn-secondary"
-                  style={{ flex: 1, fontSize: '1rem', padding: '0.85rem' }}
+                  style={{ flex: 1, fontSize: '1.05rem', padding: '0.95rem 1rem', fontWeight: '700' }}
                   onClick={() => setMode('join')}
                   disabled={!state.connected || !name.trim()}
                 >
@@ -199,14 +180,14 @@ export default function Landing() {
               <>
                 <button
                   className="btn-secondary"
-                  style={{ flex: 1, fontSize: '1rem', padding: '0.85rem' }}
+                  style={{ flex: 1, fontSize: '1.05rem', padding: '0.95rem 1rem', fontWeight: '700' }}
                   onClick={() => setMode('menu')}
                 >
                   Zurück
                 </button>
                 <button
                   className="btn-primary"
-                  style={{ flex: 1, fontSize: '1rem', padding: '0.85rem' }}
+                  style={{ flex: 1, fontSize: '1.05rem', padding: '0.95rem 1rem', fontWeight: '700' }}
                   onClick={handleJoin}
                   disabled={!state.connected || !name.trim() || lobbyCode.length < 6}
                 >

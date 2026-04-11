@@ -234,7 +234,7 @@ interface GameContextType {
   disconnectWs: () => void;
 }
 
-const GameContext = createContext<GameContextType | null>(null);
+export const GameContext = createContext<GameContextType | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
