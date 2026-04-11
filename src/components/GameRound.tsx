@@ -270,7 +270,7 @@ export default function GameRound() {
               width: '5.5rem',
               height: '5.5rem',
               borderRadius: '50%',
-              border: 'none',
+              border: jokerMode ? '3px solid rgba(255,255,255,0.9)' : '3px solid rgba(255,220,80,0.6)',
               cursor: state.jokersRemaining > 0 && !state.selectedCardId ? 'pointer' : 'not-allowed',
               opacity: state.jokersRemaining === 0 || state.selectedCardId !== null ? 0.4 : 1,
               transition: 'all 0.2s ease',
@@ -278,35 +278,43 @@ export default function GameRound() {
                 ? 'linear-gradient(145deg, #f0c030 0%, #c89010 50%, #a07010 100%)'
                 : 'linear-gradient(145deg, #e8b820 0%, #c09010 50%, #9a7010 100%)',
               boxShadow: jokerMode
-                ? '0 0 0 3px #fff, 0 6px 25px rgba(180,140,10,0.8), inset 0 2px 4px rgba(255,255,255,0.3)'
+                ? '0 0 0 2px #fff, 0 6px 25px rgba(180,140,10,0.8), inset 0 2px 4px rgba(255,255,255,0.3)'
                 : '0 6px 20px rgba(180,140,10,0.55), inset 0 2px 3px rgba(255,255,255,0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <img
-              src="/joker.svg"
-              alt="Joker"
-              style={{ width: '3.25rem', height: '3.25rem', objectFit: 'contain', display: 'block' }}
-            />
+            <span style={{
+              fontSize: '0.85rem',
+              fontWeight: '900',
+              color: '#3a2000',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              lineHeight: 1,
+              textAlign: 'center',
+              userSelect: 'none',
+            }}>
+              JOKER
+            </span>
             {/* Count badge */}
             <span
               style={{
                 position: 'absolute',
-                top: '-4px',
-                right: '-4px',
-                width: '1.6rem',
-                height: '1.6rem',
+                top: '-6px',
+                right: '-6px',
+                width: '1.7rem',
+                height: '1.7rem',
                 borderRadius: '50%',
-                background: '#111',
-                border: '2px solid #d4a020',
-                color: '#d4a020',
-                fontSize: '0.8rem',
-                fontWeight: '800',
+                background: '#1a1200',
+                border: '2px solid #f0c030',
+                color: '#f0c030',
+                fontSize: '0.85rem',
+                fontWeight: '900',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
               }}
             >
               {state.jokersRemaining}
