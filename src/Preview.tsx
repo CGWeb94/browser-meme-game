@@ -15,7 +15,7 @@ const mockPlayers = [
   { id: 'p2', name: '8H97LS', score: 20, connected: true },
   { id: 'p3', name: 'Player 3', score: 10, connected: false },
 ];
-const mockSettings = { totalRounds: 8, sentenceMode: 'random' as const, sentencesPerPlayer: 1, cardSetSize: 120 };
+const mockSettings = { totalRounds: 8, sentenceMode: 'random' as const, sentencesPerPlayer: 1, cardSetSize: 31, memeSet: 'spongebob' as const };
 
 function noop() {}
 const mockSend: any = noop;
