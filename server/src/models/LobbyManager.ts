@@ -7,9 +7,9 @@ import {
   RoundState,
   LobbySettings,
   SentenceMode,
+  MEME_SET_SIZES,
   MAX_JOKERS_PER_GAME,
   INITIAL_HAND_SIZE,
-  DEFAULT_CARD_SET_SIZE,
   DEFAULT_ROUNDS,
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -185,7 +185,10 @@ export class LobbyManager {
       gs.settings.sentencesPerPlayer = Math.max(1, Math.min(2, settings.sentencesPerPlayer));
     }
     if (settings.cardSetSize !== undefined) {
-      gs.settings.cardSetSize = Math.max(30, Math.min(500, settings.cardSetSize));
+      gs.settings.cardSetSize = Math.max(1, Math.min(500, settings.cardSetSize));
+    }
+    if (settings.memeSet !== undefined) {
+      gs.settings.memeSet = settings.memeSet;
     }
 
     return gs;
@@ -203,6 +206,9 @@ export class LobbyManager {
     if (connectedPlayers.length < MIN_PLAYERS) {
       throw new Error(`Mindestens ${MIN_PLAYERS} Spieler benötigt`);
     }
+
+    // Ensure cardSetSize matches the selected memeSet
+    gs.settings.cardSetSize = MEME_SET_SIZES[gs.settings.memeSet] ?? MEME_SET_SIZES.spongebob;
 
     // Create and shuffle the deck
     gs.drawPile = createDeck(gs.settings.cardSetSize);
