@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { MEME_SET_SIZES } from '../types';
 import type { MemeSet } from '../types';
@@ -107,6 +107,36 @@ function PanelHeading({ children }: { children: React.ReactNode }) {
 export default function Lobby() {
   const { state, send, dispatch } = useGame();
   const { lobbyId, isHost, players, settings } = state;
+
+  // ── Local TTS voice selector (stored in localStorage) ──
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string>(
+    () => localStorage.getItem('tts-voice') ?? ''
+  );
+
+  useEffect(() => {
+    const load = () => {
+      const available = window.speechSynthesis.getVoices();
+      if (available.length > 0) setVoices(available);
+    };
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, []);
+
+  const handleVoiceChange = (name: string) => {
+    setSelectedVoice(name);
+    localStorage.setItem('tts-voice', name);
+    // Preview the selected voice
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance('Hallo! So klinge ich.');
+    utter.lang = 'de-DE';
+    if (name) {
+      const v = voices.find(v => v.name === name);
+      if (v) utter.voice = v;
+    }
+    window.speechSynthesis.speak(utter);
+  };
 
   const handleStart = () => send('startGame', { lobbyId: lobbyId! });
   const handleLeave = () => {
@@ -341,6 +371,29 @@ export default function Lobby() {
               <p style={{ marginTop: '0.5rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>Warte auf den Host...</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Local TTS settings (per player, not synced) ── */}
+      <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 0.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+        <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0 }}>
+            🔊 TTS-Stimme
+          </span>
+          <select
+            className="input-field"
+            style={{ flex: 1, minWidth: '200px', fontSize: '0.85rem', padding: '0.45rem 0.75rem' }}
+            value={selectedVoice}
+            onChange={e => handleVoiceChange(e.target.value)}
+          >
+            <option value="">Standard (Browser-Stimme)</option>
+            {voices.map(v => (
+              <option key={v.name} value={v.name}>
+                {v.name} ({v.lang})
+              </option>
+            ))}
+          </select>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', flexShrink: 0 }}>Nur für dich</span>
         </div>
       </div>
 

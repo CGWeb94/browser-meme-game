@@ -69,6 +69,11 @@ export default function GameRound() {
     const utter = new SpeechSynthesisUtterance(state.roundText);
     utter.lang = 'de-DE';
     utter.rate = 0.9;
+    const savedVoice = localStorage.getItem('tts-voice');
+    if (savedVoice) {
+      const voice = window.speechSynthesis.getVoices().find(v => v.name === savedVoice);
+      if (voice) utter.voice = voice;
+    }
     window.speechSynthesis.speak(utter);
     return () => { window.speechSynthesis.cancel(); };
   }, [state.roundText]);
