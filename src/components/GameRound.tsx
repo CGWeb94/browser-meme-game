@@ -65,10 +65,12 @@ export default function GameRound() {
 
   useEffect(() => {
     if (!state.roundText) return;
+    if (localStorage.getItem('tts-muted') === 'true') return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(state.roundText);
     utter.lang = 'de-DE';
     utter.rate = 0.9;
+    utter.volume = parseFloat(localStorage.getItem('tts-volume') ?? '1');
     const savedVoice = localStorage.getItem('tts-voice');
     if (savedVoice) {
       const voice = window.speechSynthesis.getVoices().find(v => v.name === savedVoice);

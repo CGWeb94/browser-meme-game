@@ -108,10 +108,16 @@ export default function Lobby() {
   const { state, send, dispatch } = useGame();
   const { lobbyId, isHost, players, settings } = state;
 
-  // ── Local TTS voice selector (stored in localStorage) ──
+  // ── Local TTS settings (stored in localStorage) ──
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>(
     () => localStorage.getItem('tts-voice') ?? ''
+  );
+  const [ttsMuted, setTtsMuted] = useState<boolean>(
+    () => localStorage.getItem('tts-muted') === 'true'
+  );
+  const [ttsVolume, setTtsVolume] = useState<number>(
+    () => parseFloat(localStorage.getItem('tts-volume') ?? '1')
   );
 
   useEffect(() => {
@@ -124,18 +130,36 @@ export default function Lobby() {
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
 
-  const handleVoiceChange = (name: string) => {
-    setSelectedVoice(name);
-    localStorage.setItem('tts-voice', name);
-    // Preview the selected voice
+  const speakPreview = (voiceName: string, volume: number, muted: boolean) => {
+    if (muted) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance('Hallo! So klinge ich.');
     utter.lang = 'de-DE';
-    if (name) {
-      const v = voices.find(v => v.name === name);
+    utter.volume = volume;
+    if (voiceName) {
+      const v = voices.find(v => v.name === voiceName);
       if (v) utter.voice = v;
     }
     window.speechSynthesis.speak(utter);
+  };
+
+  const handleVoiceChange = (name: string) => {
+    setSelectedVoice(name);
+    localStorage.setItem('tts-voice', name);
+    speakPreview(name, ttsVolume, ttsMuted);
+  };
+
+  const handleMuteToggle = () => {
+    const next = !ttsMuted;
+    setTtsMuted(next);
+    localStorage.setItem('tts-muted', String(next));
+    if (!next) speakPreview(selectedVoice, ttsVolume, false);
+    else window.speechSynthesis.cancel();
+  };
+
+  const handleVolumeChange = (vol: number) => {
+    setTtsVolume(vol);
+    localStorage.setItem('tts-volume', String(vol));
   };
 
   const handleStart = () => send('startGame', { lobbyId: lobbyId! });
@@ -376,24 +400,66 @@ export default function Lobby() {
 
       {/* ── Local TTS settings (per player, not synced) ── */}
       <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 0.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
-        <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0 }}>
-            🔊 TTS-Stimme
-          </span>
-          <select
-            className="input-field"
-            style={{ flex: 1, minWidth: '200px', fontSize: '0.85rem', padding: '0.45rem 0.75rem' }}
-            value={selectedVoice}
-            onChange={e => handleVoiceChange(e.target.value)}
-          >
-            <option value="">Standard (Browser-Stimme)</option>
-            {voices.map(v => (
-              <option key={v.name} value={v.name}>
-                {v.name} ({v.lang})
-              </option>
-            ))}
-          </select>
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', flexShrink: 0 }}>Nur für dich</span>
+        <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.875rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Text-to-Speech
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.72rem' }}>Nur für dich</span>
+          </div>
+
+          {/* Controls row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Mute button */}
+            <button
+              onClick={handleMuteToggle}
+              title={ttsMuted ? 'TTS einschalten' : 'TTS stummschalten'}
+              style={{
+                width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', border: 'none',
+                background: ttsMuted ? 'rgba(220,38,38,0.25)' : 'rgba(34,197,94,0.2)',
+                color: ttsMuted ? '#f87171' : '#4ade80',
+                fontSize: '1.1rem', cursor: 'pointer', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              {ttsMuted ? '🔇' : '🔊'}
+            </button>
+
+            {/* Volume slider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', minWidth: '1.5rem', textAlign: 'right' }}>0%</span>
+              <input
+                type="range" min="0" max="1" step="0.05"
+                value={ttsVolume}
+                disabled={ttsMuted}
+                onChange={e => handleVolumeChange(parseFloat(e.target.value))}
+                onMouseUp={() => speakPreview(selectedVoice, ttsVolume, ttsMuted)}
+                onTouchEnd={() => speakPreview(selectedVoice, ttsVolume, ttsMuted)}
+                style={{ width: '90px', opacity: ttsMuted ? 0.35 : 1 }}
+              />
+              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', minWidth: '2rem' }}>
+                {Math.round(ttsVolume * 100)}%
+              </span>
+            </div>
+
+            {/* Voice selector */}
+            <select
+              className="input-field"
+              style={{ flex: 1, minWidth: '180px', fontSize: '0.82rem', padding: '0.4rem 0.65rem', opacity: ttsMuted ? 0.45 : 1 }}
+              value={selectedVoice}
+              disabled={ttsMuted}
+              onChange={e => handleVoiceChange(e.target.value)}
+            >
+              <option value="">Standard (Browser-Stimme)</option>
+              {voices.map(v => (
+                <option key={v.name} value={v.name}>
+                  {v.name} ({v.lang})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
