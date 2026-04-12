@@ -63,6 +63,16 @@ export default function GameRound() {
   } | null>(null);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!state.roundText) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(state.roundText);
+    utter.lang = 'de-DE';
+    utter.rate = 0.9;
+    window.speechSynthesis.speak(utter);
+    return () => { window.speechSynthesis.cancel(); };
+  }, [state.roundText]);
+
   const handleSelectCard = (cardId: string) => {
     const card = state.hand.find(c => c.id === cardId);
     if (!card) return;
