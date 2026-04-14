@@ -3,6 +3,13 @@ import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import PlayerSeats from './PlayerSeats';
 import { useIsMobile } from '../hooks/useIsMobile';
+import type { MemeSet } from '../types';
+
+function getCardImageSrc(imageIndex: number, memeSet: MemeSet): string {
+  if (memeSet === 'spongebob') return `/memes/spongebob/${imageIndex}.jpg`;
+  if (memeSet === 'general') return `/memes/general/${imageIndex}.png`;
+  return imageIndex <= 30 ? `/memes/spongebob/${imageIndex}.jpg` : `/memes/general/${imageIndex - 31}.png`;
+}
 
 const WATERMARK_SUITS = [
   { suit: '♠', top: '8%',  left: '4%',   size: '5rem',  rotate: '-15deg', opacity: 0.06 },
@@ -48,6 +55,7 @@ export default function GameRound() {
   const [mobileBrowserIndex, setMobileBrowserIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
+  const memeSet = state.settings.memeSet ?? 'spongebob';
   const browserIdx = Math.min(mobileBrowserIndex, Math.max(0, state.hand.length - 1));
   const currentBrowserCard = state.hand[browserIdx] ?? null;
 
@@ -195,42 +203,47 @@ export default function GameRound() {
       {/* ── HAND CARDS ── */}
       {isMobile ? (
         <>
-          {/* Fixed left stack — tap to open browser */}
+          {/* Bottom-center card stack — tap to open browser */}
           {state.hand.length > 0 && (
-            <div style={{ position: 'fixed', left: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 20 }}>
+            <div style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 20 }}>
               <button
                 onClick={() => { setMobileBrowserIndex(0); setMobileBrowserOpen(true); }}
                 style={{
                   position: 'relative',
-                  width: '64px',
-                  height: `${46 + (state.hand.length - 1) * 28}px`,
+                  width: `${64 + (state.hand.length - 1) * 22}px`,
+                  height: '56px',
                   background: 'none', border: 'none', padding: 0, cursor: 'pointer',
                 }}
               >
                 {state.hand.map((card, i) => {
                   const isSelected = state.selectedCardId === card.id;
+                  const centerOffset = i - (state.hand.length - 1) / 2;
                   return (
                     <div key={card.id} style={{
-                      position: 'absolute', top: `${i * 28}px`, left: 0,
-                      zIndex: state.hand.length - i,
+                      position: 'absolute',
+                      left: `${i * 22}px`,
+                      top: `${Math.abs(centerOffset) * 2}px`,
+                      zIndex: i,
                       width: '64px', height: '46px', borderRadius: '7px',
-                      border: isSelected ? '2px solid #22c55e' : '1.5px solid rgba(255,255,255,0.25)',
+                      border: isSelected ? '2px solid #22c55e' : '1.5px solid rgba(255,255,255,0.3)',
                       overflow: 'hidden', background: '#1a3d2a',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.6)',
+                      transform: `rotate(${centerOffset * 3}deg)`,
+                      transformOrigin: 'bottom center',
                     }}>
                       <img
-                        src={`/memes/${card.imageIndex}.jpg`}
+                        src={getCardImageSrc(card.imageIndex, memeSet)}
                         alt=""
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }}
                       />
                       {isSelected && (
                         <div style={{
                           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                          background: 'rgba(34,197,94,0.3)',
+                          background: 'rgba(34,197,94,0.35)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <span style={{ fontSize: '1rem' }}>✓</span>
+                          <span style={{ fontSize: '0.9rem' }}>✓</span>
                         </div>
                       )}
                     </div>
@@ -283,43 +296,19 @@ export default function GameRound() {
                 </button>
               </div>
 
-              {/* Card — full width, no side arrows */}
-              <div style={{
-                width: '100%', maxWidth: '340px',
-                borderRadius: '1rem', overflow: 'hidden', position: 'relative',
-                boxShadow: state.selectedCardId === currentBrowserCard.id
-                  ? '0 0 0 4px #22c55e, 0 0 40px rgba(34,197,94,0.5)'
-                  : jokerMode
-                    ? '0 0 0 4px #d4a020, 0 0 40px rgba(212,160,32,0.65)'
-                    : '0 0 0 3px rgba(255,255,255,0.15)',
-              }}>
-                {/* Responsive image fills container */}
-                <div style={{ width: '100%', aspectRatio: '3/2', background: '#1a3d2a', position: 'relative' }}>
-                  <img
-                    src={`/memes/${currentBrowserCard.imageIndex}.jpg`}
-                    alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                  {state.selectedCardId === currentBrowserCard.id && (
-                    <div style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                      background: 'rgba(34,197,94,0.15)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontSize: '3rem' }}>✓</span>
-                    </div>
-                  )}
-                  {jokerMode && state.selectedCardId !== currentBrowserCard.id && (
-                    <div style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                      background: 'rgba(212,160,32,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontSize: '3rem' }}>↔️</span>
-                    </div>
-                  )}
-                </div>
+              {/* Card — uses MemeCard for correct image path + fallback */}
+              <div style={{ position: 'relative' }}>
+                <MemeCard
+                  imageIndex={currentBrowserCard.imageIndex}
+                  size="xl"
+                  selected={state.selectedCardId === currentBrowserCard.id}
+                />
+                {jokerMode && state.selectedCardId !== currentBrowserCard.id && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-xl"
+                    style={{ background: 'rgba(212,160,32,0.25)', border: '3px solid rgba(212,160,32,0.8)' }}>
+                    <span style={{ fontSize: '2.5rem' }}>↔️</span>
+                  </div>
+                )}
               </div>
 
               {/* Arrows + dot indicators in one row */}
