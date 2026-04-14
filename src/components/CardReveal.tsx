@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { getCardImageSrc } from '../utils/memeImage';
 
 export default function CardReveal() {
   const { state, send, dispatch } = useGame();
@@ -24,7 +25,7 @@ export default function CardReveal() {
   const progressPct = state.totalPlayers
     ? (state.playersReady / state.totalPlayers) * 100
     : 0;
-  const cardSize = isMobile ? 'md' : 'xl';
+  const memeSet = state.settings.memeSet ?? 'spongebob';
 
   return (
     <div
@@ -151,71 +152,117 @@ export default function CardReveal() {
             const canVote = !state.votedCardId && !isOwnCard;
             const hasVoted = state.votedCardId === rc.cardId;
 
+            if (isMobile) {
+              return (
+                <div
+                  key={rc.cardId}
+                  style={{
+                    width: '100%',
+                    borderRadius: '1rem',
+                    overflow: 'hidden',
+                    border: hasVoted
+                      ? '2px solid #d4a020'
+                      : isOwnCard
+                        ? '2px solid rgba(255,255,255,0.15)'
+                        : '2px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(255,255,255,0.04)',
+                    animation: `slideUp 0.35s ease-out ${i * 80}ms both`,
+                  }}
+                >
+                  {/* Full-width image */}
+                  <div style={{ position: 'relative', width: '100%', paddingBottom: '66.67%', background: '#1a3d2a' }}>
+                    <img
+                      src={getCardImageSrc(rc.imageIndex, memeSet)}
+                      alt=""
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }}
+                    />
+                    {/* Number badge */}
+                    <div style={{
+                      position: 'absolute', top: '8px', left: '8px',
+                      width: '24px', height: '24px', borderRadius: '50%',
+                      background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '800', fontSize: '0.75rem', color: '#1a1a1a',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.5)', zIndex: 10,
+                    }}>
+                      {i + 1}
+                    </div>
+                    {hasVoted && (
+                      <div style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(212,160,32,0.15)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <span style={{ fontSize: '3rem' }}>✓</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Action */}
+                  {isOwnCard ? (
+                    <div style={{ padding: '0.65rem 1rem', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', fontSize: '0.8rem' }}>
+                      Deine Karte
+                    </div>
+                  ) : (
+                    <button
+                      style={{
+                        width: '100%', padding: '0.9rem',
+                        fontWeight: '700', fontSize: '1rem', border: 'none',
+                        cursor: state.votedCardId ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.15s ease',
+                        ...(hasVoted
+                          ? { background: 'linear-gradient(135deg, #22c55e, #15803d)', color: '#fff' }
+                          : state.votedCardId
+                            ? { background: 'rgba(50,50,50,0.5)', color: 'rgba(255,255,255,0.25)' }
+                            : { background: 'linear-gradient(135deg, #d4a020, #9a7010)', color: '#1a0f00' }
+                        ),
+                      }}
+                      onClick={canVote ? () => handleVote(rc.cardId) : undefined}
+                      disabled={!!state.votedCardId}
+                    >
+                      {hasVoted ? '✓ Gewählt' : 'Abstimmen'}
+                    </button>
+                  )}
+                </div>
+              );
+            }
+
+            // Desktop layout
             return (
               <div
                 key={rc.cardId}
                 style={{
-                  display: 'flex',
-                  flexDirection: isMobile ? 'row' : 'column',
-                  alignItems: 'center',
-                  gap: isMobile ? '0.75rem' : '0.5rem',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', gap: '0.5rem',
                   animation: `slideUp 0.35s ease-out ${i * 80}ms both`,
-                  ...(isMobile ? { width: '100%' } : {}),
                 }}
               >
-                {/* Card + number badge */}
                 <div style={{ position: 'relative' }}>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      left: '-8px',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: '800',
-                      fontSize: '0.75rem',
-                      color: '#1a1a1a',
-                      zIndex: 10,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                    }}
-                  >
+                  <div style={{
+                    position: 'absolute', top: '-8px', left: '-8px',
+                    width: '24px', height: '24px', borderRadius: '50%',
+                    background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: '800', fontSize: '0.75rem', color: '#1a1a1a',
+                    zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                  }}>
                     {i + 1}
                   </div>
-
                   <MemeCard
                     imageIndex={rc.imageIndex}
-                    size={cardSize}
+                    size="xl"
                     selected={hasVoted}
                     disabled={!canVote}
                     onClick={canVote ? () => handleVote(rc.cardId) : undefined}
                   />
                 </div>
-
-                {/* Abstimmen button or label */}
                 {isOwnCard ? (
-                  <span style={{
-                    fontSize: '0.7rem',
-                    color: 'rgba(255,255,255,0.4)',
-                    fontStyle: 'italic',
-                    ...(isMobile ? { flex: 1, textAlign: 'center' } : {}),
-                  }}>
+                  <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
                     Deine Karte
                   </span>
                 ) : (
                   <button
                     style={{
-                      width: isMobile ? undefined : '100%',
-                      flex: isMobile ? 1 : undefined,
-                      padding: isMobile ? '0.6rem 1rem' : '0.55rem 1rem',
-                      borderRadius: '0.6rem',
-                      fontWeight: '700',
-                      fontSize: '0.875rem',
-                      border: 'none',
+                      width: '100%', padding: '0.55rem 1rem', borderRadius: '0.6rem',
+                      fontWeight: '700', fontSize: '0.875rem', border: 'none',
                       cursor: state.votedCardId ? 'not-allowed' : 'pointer',
                       transition: 'all 0.15s ease',
                       ...(hasVoted

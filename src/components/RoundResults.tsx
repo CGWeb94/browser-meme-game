@@ -123,23 +123,50 @@ export default function RoundResults() {
         </div>
       </div>
 
+      {/* Spacer so content isn't hidden behind fixed button on mobile */}
+      {isMobile && !isLastRound && <div style={{ height: '80px' }} />}
+
       {/* Nächste Runde / Host only */}
-      <div
-        className="relative z-10 w-full max-w-xl mt-5 flex justify-end animate-slide-up"
-        style={{ animationDelay: '200ms' }}
-      >
-        {state.isHost && !isLastRound && (
-          <div className="flex flex-col items-end gap-1">
-            <button className="btn-green px-8" onClick={handleNextRound}>
-              Nächste Runde →
-            </button>
-            <span className="text-xs text-gray-500">Nur für den Host sichtbar</span>
-          </div>
-        )}
-        {!state.isHost && !isLastRound && (
-          <p className="text-sm text-gray-500">Warte auf den Host...</p>
-        )}
-      </div>
+      {isMobile ? (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 20,
+          padding: '0.75rem 1rem',
+          background: 'linear-gradient(to top, rgba(10,24,16,0.98) 80%, transparent)',
+        }}>
+          {state.isHost && !isLastRound && (
+            <>
+              <button
+                className="btn-green"
+                style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
+                onClick={handleNextRound}
+              >
+                Nächste Runde →
+              </button>
+              <p className="text-center text-xs text-gray-500 mt-1">Nur für den Host sichtbar</p>
+            </>
+          )}
+          {!state.isHost && !isLastRound && (
+            <p className="text-center text-sm text-gray-500">Warte auf den Host...</p>
+          )}
+        </div>
+      ) : (
+        <div
+          className="relative z-10 w-full max-w-xl mt-5 flex justify-end animate-slide-up"
+          style={{ animationDelay: '200ms' }}
+        >
+          {state.isHost && !isLastRound && (
+            <div className="flex flex-col items-end gap-1">
+              <button className="btn-green px-8" onClick={handleNextRound}>
+                Nächste Runde →
+              </button>
+              <span className="text-xs text-gray-500">Nur für den Host sichtbar</span>
+            </div>
+          )}
+          {!state.isHost && !isLastRound && (
+            <p className="text-sm text-gray-500">Warte auf den Host...</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,13 +3,7 @@ import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
 import PlayerSeats from './PlayerSeats';
 import { useIsMobile } from '../hooks/useIsMobile';
-import type { MemeSet } from '../types';
-
-function getCardImageSrc(imageIndex: number, memeSet: MemeSet): string {
-  if (memeSet === 'spongebob') return `/memes/spongebob/${imageIndex}.jpg`;
-  if (memeSet === 'general') return `/memes/general/${imageIndex}.png`;
-  return imageIndex <= 30 ? `/memes/spongebob/${imageIndex}.jpg` : `/memes/general/${imageIndex - 31}.png`;
-}
+import { getCardImageSrc } from '../utils/memeImage';
 
 const WATERMARK_SUITS = [
   { suit: '♠', top: '8%',  left: '4%',   size: '5rem',  rotate: '-15deg', opacity: 0.06 },
@@ -210,8 +204,8 @@ export default function GameRound() {
                 onClick={() => { setMobileBrowserIndex(0); setMobileBrowserOpen(true); }}
                 style={{
                   position: 'relative',
-                  width: `${64 + (state.hand.length - 1) * 22}px`,
-                  height: '56px',
+                  width: `${90 + (state.hand.length - 1) * 28}px`,
+                  height: '72px',
                   background: 'none', border: 'none', padding: 0, cursor: 'pointer',
                 }}
               >
@@ -221,10 +215,10 @@ export default function GameRound() {
                   return (
                     <div key={card.id} style={{
                       position: 'absolute',
-                      left: `${i * 22}px`,
+                      left: `${i * 28}px`,
                       top: `${Math.abs(centerOffset) * 2}px`,
                       zIndex: i,
-                      width: '64px', height: '46px', borderRadius: '7px',
+                      width: '90px', height: '62px', borderRadius: '8px',
                       border: isSelected ? '2px solid #22c55e' : '1.5px solid rgba(255,255,255,0.3)',
                       overflow: 'hidden', background: '#1a3d2a',
                       boxShadow: '0 2px 10px rgba(0,0,0,0.6)',
@@ -306,7 +300,7 @@ export default function GameRound() {
                 {jokerMode && state.selectedCardId !== currentBrowserCard.id && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-xl"
                     style={{ background: 'rgba(212,160,32,0.25)', border: '3px solid rgba(212,160,32,0.8)' }}>
-                    <span style={{ fontSize: '2.5rem' }}>↔️</span>
+                    <span style={{ fontSize: '2.5rem' }}></span>
                   </div>
                 )}
               </div>
@@ -376,7 +370,7 @@ export default function GameRound() {
                       border: 'none', color: '#1a0f00',
                     }}
                   >
-                    ↔️ Joker tauschen
+                    Joker nutzen
                   </button>
                 </div>
               ) : (
@@ -490,7 +484,7 @@ export default function GameRound() {
                             className="absolute inset-0 flex items-center justify-center rounded-xl"
                             style={{ background: 'rgba(212,160,32,0.25)', border: '3px solid rgba(212,160,32,0.8)' }}
                           >
-                            <span className="text-2xl drop-shadow">↔️</span>
+                            <span className="text-2xl drop-shadow"></span>
                           </div>
                         )}
                       </div>
