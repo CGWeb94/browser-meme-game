@@ -20,8 +20,9 @@ function nextFilename(label) {
   return join(OUT_DIR, label ? `screenshot-${n}-${label}.png` : `screenshot-${n}.png`);
 }
 
-const url   = process.argv[2] || 'http://localhost:3001';
-const label = process.argv[3] || '';
+const url    = process.argv[2] || 'http://localhost:3001';
+const label  = process.argv[3] || '';
+const mobile = process.argv.includes('--mobile');
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -31,7 +32,11 @@ const label = process.argv[3] || '';
   });
 
   const page = await browser.newPage();
-  await page.setViewport({ width: 1440, height: 900 });
+  if (mobile) {
+    await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  } else {
+    await page.setViewport({ width: 1440, height: 900 });
+  }
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
 
   // Force GSAP animations to complete if present

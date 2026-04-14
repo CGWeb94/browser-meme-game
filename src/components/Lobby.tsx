@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { MEME_SET_SIZES } from '../types';
 import type { MemeSet } from '../types';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 function getAvatarColor(name: string): string {
   const colors = ['#c0392b', '#2980b9', '#8e44ad', '#27ae60', '#e67e22', '#16a085', '#d35400', '#2c3e50'];
@@ -107,6 +108,7 @@ function PanelHeading({ children }: { children: React.ReactNode }) {
 export default function Lobby() {
   const { state, send, dispatch } = useGame();
   const { lobbyId, isHost, players, settings } = state;
+  const isMobile = useIsMobile();
 
   // ── Local TTS settings (stored in localStorage) ──
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -209,8 +211,9 @@ export default function Lobby() {
           zIndex: 10,
           flex: 1,
           display: 'flex',
-          gap: '1.25rem',
-          padding: '0.75rem 1.5rem',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: '1rem',
+          padding: isMobile ? '0.75rem 1rem' : '0.75rem 1.5rem',
           alignItems: 'flex-start',
           maxWidth: '1100px',
           margin: '0 auto',
@@ -399,7 +402,7 @@ export default function Lobby() {
       </div>
 
       {/* ── Local TTS settings (per player, not synced) ── */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '0 1.5rem 0.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+      <div style={{ position: 'relative', zIndex: 10, padding: isMobile ? '0 1rem 0.5rem' : '0 1.5rem 0.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
         <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.875rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 
           {/* Header row */}
@@ -484,7 +487,17 @@ export default function Lobby() {
       )}
 
       {/* Bottom buttons */}
-      <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '1rem', padding: '1rem 1.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: isMobile ? 'column-reverse' : 'row',
+        gap: '0.75rem',
+        padding: isMobile ? '0.75rem 1rem 1.25rem' : '1rem 1.5rem',
+        maxWidth: '1100px',
+        margin: '0 auto',
+        width: '100%',
+      }}>
         <button className="btn-secondary" style={{ flexShrink: 0, padding: '0.85rem 2rem', fontSize: '1rem' }} onClick={handleLeave}>
           Verlassen
         </button>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export default function CardReveal() {
   const { state, send, dispatch } = useGame();
+  const isMobile = useIsMobile();
   const [showError, setShowError] = useState(false);
 
   const handleVote = (cardId: string) => {
@@ -22,6 +24,7 @@ export default function CardReveal() {
   const progressPct = state.totalPlayers
     ? (state.playersReady / state.totalPlayers) * 100
     : 0;
+  const cardSize = isMobile ? 'md' : 'xl';
 
   return (
     <div
@@ -118,24 +121,29 @@ export default function CardReveal() {
         </div>
       )}
 
-      {/* ── Cards grid ── 3 columns, xl size, like the screenshot */}
+      {/* ── Cards ── */}
       <div
         style={{
           position: 'relative',
           zIndex: 10,
           flex: 1,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: isMobile ? 'stretch' : 'center',
           justifyContent: 'center',
-          padding: '1.25rem 1.5rem',
+          padding: isMobile ? '0.75rem 1rem' : '1.25rem 1.5rem',
+          overflowY: isMobile ? 'auto' : undefined,
         }}
       >
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, auto)',
-            gap: '1.5rem 1.25rem',
-            justifyContent: 'center',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : undefined,
+            ...(isMobile ? { width: '100%', gap: '0.75rem' } : {
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, auto)',
+              gap: '1.5rem 1.25rem',
+              justifyContent: 'center',
+            }),
           }}
         >
           {state.revealedCards.map((rc, i) => {
@@ -148,29 +156,29 @@ export default function CardReveal() {
                 key={rc.cardId}
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: isMobile ? 'row' : 'column',
                   alignItems: 'center',
-                  gap: '0.6rem',
+                  gap: isMobile ? '0.75rem' : '0.5rem',
                   animation: `slideUp 0.35s ease-out ${i * 80}ms both`,
+                  ...(isMobile ? { width: '100%' } : {}),
                 }}
               >
                 {/* Card + number badge */}
                 <div style={{ position: 'relative' }}>
-                  {/* Number badge — white circle, dark number, top-left */}
                   <div
                     style={{
                       position: 'absolute',
-                      top: '-10px',
-                      left: '-10px',
-                      width: '28px',
-                      height: '28px',
+                      top: '-8px',
+                      left: '-8px',
+                      width: '24px',
+                      height: '24px',
                       borderRadius: '50%',
                       background: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: '800',
-                      fontSize: '0.8rem',
+                      fontSize: '0.75rem',
                       color: '#1a1a1a',
                       zIndex: 10,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
@@ -181,7 +189,7 @@ export default function CardReveal() {
 
                   <MemeCard
                     imageIndex={rc.imageIndex}
-                    size="xl"
+                    size={cardSize}
                     selected={hasVoted}
                     disabled={!canVote}
                     onClick={canVote ? () => handleVote(rc.cardId) : undefined}
@@ -190,14 +198,20 @@ export default function CardReveal() {
 
                 {/* Abstimmen button or label */}
                 {isOwnCard ? (
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    color: 'rgba(255,255,255,0.4)',
+                    fontStyle: 'italic',
+                    ...(isMobile ? { flex: 1, textAlign: 'center' } : {}),
+                  }}>
                     Deine Karte
                   </span>
                 ) : (
                   <button
                     style={{
-                      width: '100%',
-                      padding: '0.55rem 1rem',
+                      width: isMobile ? undefined : '100%',
+                      flex: isMobile ? 1 : undefined,
+                      padding: isMobile ? '0.6rem 1rem' : '0.55rem 1rem',
                       borderRadius: '0.6rem',
                       fontWeight: '700',
                       fontSize: '0.875rem',

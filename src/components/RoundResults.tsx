@@ -1,8 +1,10 @@
 import { useGame } from '../context/GameContext';
 import MemeCard from './MemeCard';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export default function RoundResults() {
   const { state, send } = useGame();
+  const isMobile = useIsMobile();
 
   const handleNextRound = () => {
     send('nextRound', { lobbyId: state.lobbyId! });
@@ -36,34 +38,35 @@ export default function RoundResults() {
       {/* Winner card — large with gold glow */}
       {winner && (
         <div
-          className="relative z-10 rounded-2xl overflow-hidden mb-7 animate-slide-up"
+          className="relative z-10 rounded-2xl overflow-hidden mb-5 animate-slide-up"
           style={{
             boxShadow: '0 0 0 3px #d4a020, 0 0 45px rgba(212, 160, 32, 0.55)',
             animationDelay: '50ms',
           }}
         >
-          <MemeCard imageIndex={winner.imageIndex} size="lg" disabled />
+          <MemeCard imageIndex={winner.imageIndex} size={isMobile ? 'md' : 'lg'} disabled />
         </div>
       )}
 
       {/* Scoreboard table */}
       <div
         className="relative z-10 w-full max-w-xl animate-slide-up"
-        style={{ animationDelay: '100ms' }}
+        style={{ animationDelay: '100ms', padding: isMobile ? '0 0.5rem' : '0' }}
       >
         {/* Table header */}
         <div
-          className="grid px-5 py-2.5 rounded-t-2xl text-xs font-bold uppercase tracking-widest text-gray-400"
+          className="grid rounded-t-2xl text-xs font-bold uppercase tracking-widest text-gray-400"
           style={{
             gridTemplateColumns: '1fr auto auto',
-            gap: '1rem',
+            gap: isMobile ? '0.5rem' : '1rem',
+            padding: isMobile ? '0.6rem 0.75rem' : '0.625rem 1.25rem',
             background: 'rgba(0,0,0,0.55)',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
           }}
         >
           <span>Spieler</span>
-          <span className="text-center w-28">Stimmen</span>
-          <span className="text-right w-16">Punkte</span>
+          <span className="text-center" style={{ width: isMobile ? '4rem' : '7rem' }}>Stimmen</span>
+          <span className="text-right" style={{ width: isMobile ? '3rem' : '4rem' }}>Punkte</span>
         </div>
 
         {/* Rows */}
@@ -71,10 +74,11 @@ export default function RoundResults() {
           {state.roundResults.map((r, i) => (
             <div
               key={r.cardId}
-              className="grid items-center px-5 py-3 animate-slide-up"
+              className="grid items-center animate-slide-up"
               style={{
                 gridTemplateColumns: '1fr auto auto',
-                gap: '1rem',
+                gap: isMobile ? '0.5rem' : '1rem',
+                padding: isMobile ? '0.6rem 0.75rem' : '0.75rem 1.25rem',
                 borderBottom:
                   i < state.roundResults.length - 1
                     ? '1px solid rgba(255,255,255,0.06)'
@@ -83,12 +87,12 @@ export default function RoundResults() {
               }}
             >
               {/* Player name + rank */}
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-base w-6 text-center flex-shrink-0">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-base w-5 text-center flex-shrink-0">
                   {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
                 </span>
                 <span className="font-semibold text-sm truncate">{r.playerName}</span>
-                {r.playerName === state.players.find(p => p.id === state.hostId)?.name && (
+                {!isMobile && r.playerName === state.players.find(p => p.id === state.hostId)?.name && (
                   <span
                     className="text-xs px-1.5 py-0.5 rounded-full font-bold flex-shrink-0"
                     style={{ background: 'rgba(212,160,32,0.2)', color: '#d4a020' }}
@@ -99,15 +103,18 @@ export default function RoundResults() {
               </div>
 
               {/* Votes + card thumbnail */}
-              <div className="flex items-center justify-center gap-2 w-28">
-                <MemeCard imageIndex={r.imageIndex} size="sm" disabled />
+              <div
+                className="flex items-center justify-center gap-1.5"
+                style={{ width: isMobile ? '4rem' : '7rem' }}
+              >
+                {!isMobile && <MemeCard imageIndex={r.imageIndex} size="sm" disabled />}
                 <span className="font-bold text-lg text-white">{r.votes}</span>
               </div>
 
               {/* Points earned */}
               <div
-                className="text-right font-bold text-lg w-16"
-                style={{ color: '#d4a020' }}
+                className="text-right font-bold text-lg"
+                style={{ color: '#d4a020', width: isMobile ? '3rem' : '4rem' }}
               >
                 {r.pointsEarned}
               </div>
