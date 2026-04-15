@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
-import type { Card, PlayerInfo, LobbySettings, RoundResult, ScoreEntry, FinalScore, RevealedCard, Screen } from '../types';
+import type { Card, PlayerInfo, LobbySettings, RoundResult, ScoreEntry, FinalScore, RevealedCard, Screen, ChatMessage } from '../types';
 
 // --- State ---
 
@@ -35,6 +35,8 @@ interface GameState {
   sentencesSubmitted: boolean;
   // Error
   error: string | null;
+  // Chat
+  chatMessages: ChatMessage[];
 }
 
 const initialState: GameState = {
@@ -63,6 +65,7 @@ const initialState: GameState = {
   sentencesRequested: 0,
   sentencesSubmitted: false,
   error: null,
+  chatMessages: [],
 };
 
 // --- Actions ---
@@ -95,6 +98,7 @@ type Action =
   | { type: 'PLAYER_RECONNECTED'; playerId: string }
   | { type: 'ERROR'; message: string }
   | { type: 'CLEAR_ERROR' }
+  | { type: 'ADD_CHAT_MESSAGE'; message: ChatMessage }
   | { type: 'RESET' }
   | { type: 'GO_TO_SCREEN'; screen: Screen };
 
@@ -215,6 +219,8 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, error: action.message };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
+    case 'ADD_CHAT_MESSAGE':
+      return { ...state, chatMessages: [...state.chatMessages, action.message].slice(-200) };
     case 'RESET':
       return { ...initialState, playerName: state.playerName, connected: state.connected };
     case 'GO_TO_SCREEN':
@@ -316,6 +322,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         break;
       case 'error':
         dispatch({ type: 'ERROR', message: data.message });
+        break;
+      case 'chatMessage':
+        dispatch({
+          type: 'ADD_CHAT_MESSAGE',
+          message: {
+            playerId: data.playerId as string,
+            playerName: data.playerName as string,
+            text: data.text as string,
+            timestamp: data.timestamp as number,
+          },
+        });
         break;
       case 'pong':
         break;

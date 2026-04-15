@@ -257,6 +257,22 @@ export interface S2C_PlayerReconnected {
 }
 
 // ============================================================
+// Chat
+// ============================================================
+
+export interface C2S_SendChatMessage {
+  lobbyId: string;
+  text: string;
+}
+
+export interface S2C_ChatMessage {
+  playerId: string;
+  playerName: string;
+  text: string;
+  timestamp: number; // server-assigned via Date.now()
+}
+
+// ============================================================
 // Master Event Map
 // ============================================================
 
@@ -270,7 +286,8 @@ export type ClientEvent =
   | { event: 'selectCard'; data: C2S_SelectCard }
   | { event: 'useJoker'; data: C2S_UseJoker }
   | { event: 'vote'; data: C2S_Vote }
-  | { event: 'nextRound'; data: C2S_NextRound };
+  | { event: 'nextRound'; data: C2S_NextRound }
+  | { event: 'sendChatMessage'; data: C2S_SendChatMessage };
 
 export type ServerEvent = { event: string; data: unknown };
 

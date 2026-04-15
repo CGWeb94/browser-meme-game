@@ -340,6 +340,35 @@ export class GameHandler {
     }
   }
 
+  handleSendChatMessage(ws: WebSocket, data: { lobbyId: string; text: string }): void {
+    try {
+      const meta = this.conn.getMeta(ws);
+      if (!meta) return;
+
+      const gs = this.lobby.getLobby(data.lobbyId);
+      if (!gs) throw new Error('Lobby nicht gefunden');
+
+      const player = gs.players.get(meta.playerId);
+      if (!player) throw new Error('Spieler nicht gefunden');
+
+      const trimmed = data.text?.trim();
+      if (!trimmed) return;
+      if (trimmed.length > 300) {
+        this.conn.sendError(ws, 'Nachricht zu lang (max. 300 Zeichen)');
+        return;
+      }
+
+      this.conn.broadcastToLobby(data.lobbyId, 'chatMessage', {
+        playerId: meta.playerId,
+        playerName: player.name,
+        text: trimmed,
+        timestamp: Date.now(),
+      });
+    } catch (err: any) {
+      this.conn.sendError(ws, err.message);
+    }
+  }
+
   // --- Internal helpers ---
 
   private startRound(lobbyId: string): void {

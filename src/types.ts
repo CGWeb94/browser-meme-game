@@ -56,6 +56,13 @@ export interface RevealedCard {
   playerId: string;
 }
 
+export interface ChatMessage {
+  playerId: string;
+  playerName: string;
+  text: string;
+  timestamp: number;
+}
+
 // Game screen states
 export type Screen =
   | 'landing'

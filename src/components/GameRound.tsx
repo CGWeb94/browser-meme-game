@@ -4,6 +4,7 @@ import MemeCard from './MemeCard';
 import PlayerSeats from './PlayerSeats';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { getCardImageSrc } from '../utils/memeImage';
+import { useTTS } from '../hooks/useTTS';
 
 const WATERMARK_SUITS = [
   { suit: '♠', top: '8%',  left: '4%',   size: '5rem',  rotate: '-15deg', opacity: 0.06 },
@@ -64,6 +65,8 @@ export default function GameRound() {
     setTouchStartX(null);
   };
 
+  const { speak, cancel } = useTTS();
+
   const handleCardClick = (cardId: string) => {
     const isDisabled = state.selectedCardId !== null && state.selectedCardId !== cardId && !jokerMode;
     if (isDisabled) return;
@@ -73,19 +76,8 @@ export default function GameRound() {
 
   useEffect(() => {
     if (!state.roundText) return;
-    if (localStorage.getItem('tts-muted') === 'true') return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(state.roundText);
-    utter.lang = 'de-DE';
-    utter.rate = 0.9;
-    utter.volume = parseFloat(localStorage.getItem('tts-volume') ?? '1');
-    const savedVoice = localStorage.getItem('tts-voice');
-    if (savedVoice) {
-      const voice = window.speechSynthesis.getVoices().find(v => v.name === savedVoice);
-      if (voice) utter.voice = voice;
-    }
-    window.speechSynthesis.speak(utter);
-    return () => { window.speechSynthesis.cancel(); };
+    speak(state.roundText);
+    return () => { cancel(); };
   }, [state.roundText]);
 
   const handleSelectCard = (cardId: string) => {
@@ -273,7 +265,7 @@ export default function GameRound() {
               {/* Counter + close */}
               <div style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                width: '100%', maxWidth: '340px',
+                width: '100%',
               }}>
                 <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
                   Karte {browserIdx + 1} / {state.hand.length}
@@ -290,12 +282,13 @@ export default function GameRound() {
                 </button>
               </div>
 
-              {/* Card — uses MemeCard for correct image path + fallback */}
-              <div style={{ position: 'relative' }}>
+              {/* Card — fills full modal width for better meme visibility */}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '3/2' }}>
                 <MemeCard
                   imageIndex={currentBrowserCard.imageIndex}
                   size="xl"
                   selected={state.selectedCardId === currentBrowserCard.id}
+                  style={{ width: '100%', height: '100%' }}
                 />
                 {jokerMode && state.selectedCardId !== currentBrowserCard.id && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-xl"
@@ -306,7 +299,7 @@ export default function GameRound() {
               </div>
 
               {/* Arrows + dot indicators in one row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', maxWidth: '340px', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
                 <button
                   onClick={browsePrev}
                   disabled={browserIdx === 0}
@@ -350,7 +343,7 @@ export default function GameRound() {
 
               {/* Action buttons */}
               {jokerMode ? (
-                <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '340px' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
                   <button
                     onClick={() => setJokerMode(false)}
                     style={{
@@ -374,7 +367,7 @@ export default function GameRound() {
                   </button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '340px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', width: '100%', alignItems: 'center' }}>
                   {/* Joker circular button */}
                   <button
                     onClick={() => setJokerMode(true)}
@@ -499,7 +492,7 @@ export default function GameRound() {
 
       {/* Joker button — desktop only */}
       {!isMobile && (
-        <div className="fixed z-30 flex items-center gap-3 bottom-6 right-6">
+        <div className="fixed z-30 flex items-center gap-3 bottom-[5.5rem] right-6">
           {jokerMode && (
             <button
               onClick={() => setJokerMode(false)}

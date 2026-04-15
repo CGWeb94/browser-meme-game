@@ -7,6 +7,7 @@ import Lobby from './components/Lobby';
 import CardReveal from './components/CardReveal';
 import RoundResults from './components/RoundResults';
 import GameRound from './components/GameRound';
+import Chat from './components/Chat';
 import { GameContext } from './context/GameContext';
 
 // ── Shared mock helpers ──────────────────────────────────────────────────────
@@ -65,6 +66,7 @@ function mockCtx(partial: any) {
     sentencesRequested: 0,
     sentencesSubmitted: false,
     error: null,
+    chatMessages: [],
     ...partial,
   };
   return { state: base, send: mockSend, dispatch: mockDispatch };
@@ -76,6 +78,7 @@ function PreviewLobby() {
   return (
     <GameContext.Provider value={mockCtx({ screen: 'lobby' }) as any}>
       <Lobby />
+      <Chat />
     </GameContext.Provider>
   );
 }
@@ -84,6 +87,7 @@ function PreviewCardReveal() {
   return (
     <GameContext.Provider value={mockCtx({ screen: 'revealing' }) as any}>
       <CardReveal />
+      <Chat />
     </GameContext.Provider>
   );
 }
@@ -92,6 +96,7 @@ function PreviewRoundResults() {
   return (
     <GameContext.Provider value={mockCtx({ screen: 'round_results' }) as any}>
       <RoundResults />
+      <Chat />
     </GameContext.Provider>
   );
 }
@@ -100,6 +105,7 @@ function PreviewGameRound() {
   return (
     <GameContext.Provider value={mockCtx({ screen: 'selecting' }) as any}>
       <GameRound />
+      <Chat />
     </GameContext.Provider>
   );
 }

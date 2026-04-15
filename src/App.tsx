@@ -6,6 +6,7 @@ import GameRound from './components/GameRound';
 import CardReveal from './components/CardReveal';
 import RoundResults from './components/RoundResults';
 import FinalScores from './components/FinalScores';
+import Chat from './components/Chat';
 
 function GameRouter() {
   const { state } = useGame();
@@ -35,6 +36,7 @@ export default function App() {
   return (
     <GameProvider>
       <GameRouter />
+      <Chat />
     </GameProvider>
   );
 }
