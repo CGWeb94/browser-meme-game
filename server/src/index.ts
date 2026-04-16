@@ -66,6 +66,7 @@ type EventName =
   | 'vote'
   | 'nextRound'
   | 'sendChatMessage'
+  | 'sendReaction'
   | 'ping';
 
 function routeEvent(ws: WebSocket, eventName: EventName, data: any): void {
@@ -102,6 +103,9 @@ function routeEvent(ws: WebSocket, eventName: EventName, data: any): void {
       break;
     case 'sendChatMessage':
       gameHandler.handleSendChatMessage(ws, data);
+      break;
+    case 'sendReaction':
+      gameHandler.handleSendReaction(ws, data);
       break;
     case 'ping':
       // Respond to client heartbeat

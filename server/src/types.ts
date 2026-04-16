@@ -74,6 +74,7 @@ export interface RoundState {
   playedCards: { playerId: string; card: Card }[];
   revealedCards: { playerId: string; card: Card }[];
   votes: Record<string, string>;  // voterId -> cardId
+  reactions: Record<string, Record<string, string>>;  // cardId -> { playerId: emoji }
 }
 
 // --- Game State ---
@@ -223,8 +224,20 @@ export interface S2C_VoteReceived {
 
 export interface S2C_RoundResults {
   roundNumber: number;
-  results: { playerId: string; playerName: string; cardId: string; imageIndex: number; votes: number; pointsEarned: number }[];
+  results: { playerId: string; playerName: string; cardId: string; imageIndex: number; votes: number; pointsEarned: number; reactionBonus: number; reactions: Record<string, number> }[];
   scores: { playerId: string; playerName: string; score: number }[];
+}
+
+export interface C2S_SendReaction {
+  lobbyId: string;
+  cardId: string;
+  emoji: string;
+}
+
+export interface S2C_ReactionReceived {
+  cardId: string;
+  emoji: string;
+  reactions: Record<string, Record<string, number>>;  // cardId -> { emoji: count }
 }
 
 export interface S2C_DrawCard {
@@ -287,7 +300,8 @@ export type ClientEvent =
   | { event: 'useJoker'; data: C2S_UseJoker }
   | { event: 'vote'; data: C2S_Vote }
   | { event: 'nextRound'; data: C2S_NextRound }
-  | { event: 'sendChatMessage'; data: C2S_SendChatMessage };
+  | { event: 'sendChatMessage'; data: C2S_SendChatMessage }
+  | { event: 'sendReaction'; data: C2S_SendReaction };
 
 export type ServerEvent = { event: string; data: unknown };
 

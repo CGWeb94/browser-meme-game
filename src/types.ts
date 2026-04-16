@@ -35,6 +35,8 @@ export interface RoundResult {
   imageIndex: number;
   votes: number;
   pointsEarned: number;
+  reactionBonus: number;
+  reactions: Record<string, number>;  // emoji -> count
 }
 
 export interface ScoreEntry {

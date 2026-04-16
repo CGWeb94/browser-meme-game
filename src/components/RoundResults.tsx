@@ -71,55 +71,89 @@ export default function RoundResults() {
 
         {/* Rows */}
         <div className="rounded-b-2xl overflow-hidden" style={{ background: 'rgba(0,0,0,0.35)' }}>
-          {state.roundResults.map((r, i) => (
-            <div
-              key={r.cardId}
-              className="grid items-center animate-slide-up"
-              style={{
-                gridTemplateColumns: '1fr auto auto',
-                gap: isMobile ? '0.5rem' : '1rem',
-                padding: isMobile ? '0.6rem 0.75rem' : '0.75rem 1.25rem',
-                borderBottom:
-                  i < state.roundResults.length - 1
-                    ? '1px solid rgba(255,255,255,0.06)'
-                    : 'none',
-                animationDelay: `${(i + 2) * 80}ms`,
-              }}
-            >
-              {/* Player name + rank */}
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-base w-5 text-center flex-shrink-0">
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
-                </span>
-                <span className="font-semibold text-sm truncate">{r.playerName}</span>
-                {!isMobile && r.playerName === state.players.find(p => p.id === state.hostId)?.name && (
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded-full font-bold flex-shrink-0"
-                    style={{ background: 'rgba(212,160,32,0.2)', color: '#d4a020' }}
+          {state.roundResults.map((r, i) => {
+            const reactionEntries = Object.entries(r.reactions || {}).filter(([, n]) => n > 0);
+            return (
+              <div
+                key={r.cardId}
+                className="animate-slide-up"
+                style={{
+                  borderBottom:
+                    i < state.roundResults.length - 1
+                      ? '1px solid rgba(255,255,255,0.06)'
+                      : 'none',
+                  animationDelay: `${(i + 2) * 80}ms`,
+                }}
+              >
+                <div
+                  className="grid items-center"
+                  style={{
+                    gridTemplateColumns: '1fr auto auto',
+                    gap: isMobile ? '0.5rem' : '1rem',
+                    padding: isMobile ? '0.6rem 0.75rem 0.3rem' : '0.75rem 1.25rem 0.35rem',
+                  }}
+                >
+                  {/* Player name + rank */}
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-base w-5 text-center flex-shrink-0">
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
+                    </span>
+                    <span className="font-semibold text-sm truncate">{r.playerName}</span>
+                    {!isMobile && r.playerName === state.players.find(p => p.id === state.hostId)?.name && (
+                      <span
+                        className="text-xs px-1.5 py-0.5 rounded-full font-bold flex-shrink-0"
+                        style={{ background: 'rgba(212,160,32,0.2)', color: '#d4a020' }}
+                      >
+                        Host
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Votes + card thumbnail */}
+                  <div
+                    className="flex items-center justify-center gap-1.5"
+                    style={{ width: isMobile ? '4rem' : '7rem' }}
                   >
-                    Host
-                  </span>
+                    {!isMobile && <MemeCard imageIndex={r.imageIndex} size="sm" disabled />}
+                    <span className="font-bold text-lg text-white">{r.votes}</span>
+                  </div>
+
+                  {/* Points earned */}
+                  <div
+                    className="text-right font-bold text-lg"
+                    style={{ color: '#d4a020', width: isMobile ? '3rem' : '4rem' }}
+                  >
+                    {r.pointsEarned}
+                    {r.reactionBonus > 0 && (
+                      <span title="Reaktions-Bonus" style={{ marginLeft: '0.2rem', fontSize: '0.85rem' }}>🔥</span>
+                    )}
+                  </div>
+                </div>
+                {/* Reaction summary row */}
+                {reactionEntries.length > 0 && (
+                  <div style={{
+                    display: 'flex', gap: '0.35rem', flexWrap: 'wrap',
+                    padding: isMobile ? '0 0.75rem 0.5rem' : '0 1.25rem 0.55rem',
+                    paddingLeft: isMobile ? '2.4rem' : '2.8rem',
+                  }}>
+                    {reactionEntries.map(([emoji, count]) => (
+                      <span key={emoji} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.15rem',
+                        background: 'rgba(255,255,255,0.08)',
+                        borderRadius: '9999px',
+                        padding: '0.1rem 0.45rem',
+                        fontSize: '0.75rem',
+                        color: 'rgba(255,255,255,0.75)',
+                      }}>
+                        {emoji}
+                        <span style={{ fontWeight: '700', fontSize: '0.7rem' }}>{count}</span>
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
-
-              {/* Votes + card thumbnail */}
-              <div
-                className="flex items-center justify-center gap-1.5"
-                style={{ width: isMobile ? '4rem' : '7rem' }}
-              >
-                {!isMobile && <MemeCard imageIndex={r.imageIndex} size="sm" disabled />}
-                <span className="font-bold text-lg text-white">{r.votes}</span>
-              </div>
-
-              {/* Points earned */}
-              <div
-                className="text-right font-bold text-lg"
-                style={{ color: '#d4a020', width: isMobile ? '3rem' : '4rem' }}
-              >
-                {r.pointsEarned}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

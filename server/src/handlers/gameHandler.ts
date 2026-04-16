@@ -24,6 +24,7 @@ import {
   S2C_HostChanged,
   S2C_PlayerDisconnected,
   S2C_PlayerReconnected,
+  S2C_ReactionReceived,
 } from '../types';
 
 export class GameHandler {
@@ -335,6 +336,20 @@ export class GameHandler {
       if (gs.hostId !== meta.playerId) throw new Error('Nur der Host kann die nächste Runde starten');
 
       this.startRound(data.lobbyId);
+    } catch (err: any) {
+      this.conn.sendError(ws, err.message);
+    }
+  }
+
+  handleSendReaction(ws: WebSocket, data: { lobbyId: string; cardId: string; emoji: string }): void {
+    try {
+      const meta = this.conn.getMeta(ws);
+      if (!meta) return;
+
+      const { cardId, emoji, allReactions } = this.lobby.sendReaction(data.lobbyId, meta.playerId, data.cardId, data.emoji);
+
+      const payload: S2C_ReactionReceived = { cardId, emoji, reactions: allReactions };
+      this.conn.broadcastToLobby(data.lobbyId, 'reactionReceived', payload);
     } catch (err: any) {
       this.conn.sendError(ws, err.message);
     }

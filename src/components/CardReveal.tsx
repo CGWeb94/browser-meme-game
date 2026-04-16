@@ -4,15 +4,49 @@ import MemeCard from './MemeCard';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { getCardImageSrc } from '../utils/memeImage';
 
+const REACTION_EMOJIS = ['🔥', '❤️', '😂', '👏'];
+
+interface FloatingReaction {
+  id: string;
+  cardId: string;
+  emoji: string;
+  x: number; // random horizontal offset %
+}
+
 export default function CardReveal() {
   const { state, send, dispatch } = useGame();
   const isMobile = useIsMobile();
   const [showError, setShowError] = useState(false);
+  const [floatingReactions, setFloatingReactions] = useState<FloatingReaction[]>([]);
+  // Track own reaction per card (optimistic)
+  const [myReactions, setMyReactions] = useState<Record<string, string>>({});
 
   const handleVote = (cardId: string) => {
     dispatch({ type: 'VOTE_CARD', cardId });
     send('vote', { lobbyId: state.lobbyId!, cardId });
   };
+
+  const handleReaction = (cardId: string, emoji: string) => {
+    setMyReactions(prev => ({ ...prev, [cardId]: emoji }));
+    send('sendReaction', { lobbyId: state.lobbyId!, cardId, emoji });
+  };
+
+  // Spawn floating animation on new reaction
+  useEffect(() => {
+    if (!state.lastReaction) return;
+    const r = state.lastReaction;
+    const floating: FloatingReaction = {
+      id: r.id,
+      cardId: r.cardId,
+      emoji: r.emoji,
+      x: 20 + Math.random() * 60, // 20%–80% horizontal
+    };
+    setFloatingReactions(prev => [...prev, floating]);
+    const t = setTimeout(() => {
+      setFloatingReactions(prev => prev.filter(f => f.id !== floating.id));
+    }, 1400);
+    return () => clearTimeout(t);
+  }, [state.lastReaction]);
 
   useEffect(() => {
     if (state.error) {
@@ -151,6 +185,10 @@ export default function CardReveal() {
             const isOwnCard = rc.cardId === state.selectedCardId;
             const canVote = !state.votedCardId && !isOwnCard;
             const hasVoted = state.votedCardId === rc.cardId;
+            const cardEmojiCounts = state.cardReactions[rc.cardId] || {};
+            const totalCardReactions = Object.values(cardEmojiCounts).reduce((s, n) => s + n, 0);
+            const myEmoji = myReactions[rc.cardId];
+            const cardFloating = floatingReactions.filter(f => f.cardId === rc.cardId);
 
             if (isMobile) {
               return (
@@ -167,6 +205,7 @@ export default function CardReveal() {
                         : '2px solid rgba(255,255,255,0.1)',
                     background: 'rgba(255,255,255,0.04)',
                     animation: `slideUp 0.35s ease-out ${i * 80}ms both`,
+                    position: 'relative',
                   }}
                 >
                   {/* Full-width image */}
@@ -196,8 +235,18 @@ export default function CardReveal() {
                         <span style={{ fontSize: '3rem' }}>✓</span>
                       </div>
                     )}
+                    {/* Floating reactions */}
+                    {cardFloating.map(f => (
+                      <div key={f.id} className="float-reaction" style={{
+                        position: 'absolute', bottom: '10%', left: `${f.x}%`,
+                        transform: 'translateX(-50%)',
+                        fontSize: '1.75rem', pointerEvents: 'none', zIndex: 20,
+                      }}>
+                        {f.emoji}
+                      </div>
+                    ))}
                   </div>
-                  {/* Action */}
+                  {/* Vote button */}
                   {isOwnCard ? (
                     <div style={{ padding: '0.65rem 1rem', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', fontSize: '0.8rem' }}>
                       Deine Karte
@@ -222,6 +271,16 @@ export default function CardReveal() {
                       {hasVoted ? '✓ Gewählt' : 'Abstimmen'}
                     </button>
                   )}
+                  {/* Reaction bar */}
+                  <ReactionBar
+                    cardId={rc.cardId}
+                    emojiCounts={cardEmojiCounts}
+                    myEmoji={myEmoji}
+                    onReact={handleReaction}
+                    totalReactions={totalCardReactions}
+                    isMobile
+                    disabled={isOwnCard}
+                  />
                 </div>
               );
             }
@@ -253,6 +312,16 @@ export default function CardReveal() {
                     disabled={!canVote}
                     onClick={canVote ? () => handleVote(rc.cardId) : undefined}
                   />
+                  {/* Floating reactions */}
+                  {cardFloating.map(f => (
+                    <div key={f.id} className="float-reaction" style={{
+                      position: 'absolute', bottom: '15%', left: `${f.x}%`,
+                      transform: 'translateX(-50%)',
+                      fontSize: '2rem', pointerEvents: 'none', zIndex: 20,
+                    }}>
+                      {f.emoji}
+                    </div>
+                  ))}
                 </div>
                 {isOwnCard ? (
                   <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
@@ -278,6 +347,16 @@ export default function CardReveal() {
                     {hasVoted ? '✓ Gewählt' : 'Abstimmen'}
                   </button>
                 )}
+                {/* Reaction bar */}
+                <ReactionBar
+                  cardId={rc.cardId}
+                  emojiCounts={cardEmojiCounts}
+                  myEmoji={myEmoji}
+                  onReact={handleReaction}
+                  totalReactions={totalCardReactions}
+                  isMobile={false}
+                  disabled={isOwnCard}
+                />
               </div>
             );
           })}
@@ -318,7 +397,88 @@ export default function CardReveal() {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes floatUp {
+          0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          60%  { opacity: 1; transform: translateX(-50%) translateY(-55px) scale(1.3); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(0.9); }
+        }
+        .float-reaction {
+          animation: floatUp 1.4s ease-out forwards;
+        }
       `}</style>
+    </div>
+  );
+}
+
+// ── Reaction Bar Component ──────────────────────────────────────────────────
+
+interface ReactionBarProps {
+  cardId: string;
+  emojiCounts: Record<string, number>;
+  myEmoji: string | undefined;
+  onReact: (cardId: string, emoji: string) => void;
+  totalReactions: number;
+  isMobile: boolean;
+  disabled?: boolean;
+}
+
+function ReactionBar({ cardId, emojiCounts, myEmoji, onReact, isMobile, disabled }: ReactionBarProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.3rem',
+        padding: isMobile ? '0.5rem 0.75rem' : '0.4rem 0',
+        background: isMobile ? 'rgba(0,0,0,0.25)' : 'transparent',
+        flexWrap: 'wrap',
+        opacity: disabled ? 0.35 : 1,
+      }}
+    >
+      {REACTION_EMOJIS.map(emoji => {
+        const count = emojiCounts[emoji] || 0;
+        const isActive = myEmoji === emoji;
+        return (
+          <button
+            key={emoji}
+            onClick={disabled ? undefined : () => onReact(cardId, emoji)}
+            disabled={disabled}
+            title={disabled ? 'Eigene Karte' : `${emoji} reagieren`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.2rem',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '9999px',
+              border: isActive
+                ? '1.5px solid rgba(212,160,32,0.8)'
+                : '1.5px solid rgba(255,255,255,0.12)',
+              background: isActive
+                ? 'rgba(212,160,32,0.18)'
+                : 'rgba(255,255,255,0.06)',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease',
+              fontSize: isMobile ? '1rem' : '0.95rem',
+              lineHeight: 1,
+              transform: isActive ? 'scale(1.1)' : 'scale(1)',
+            }}
+          >
+            <span>{emoji}</span>
+            {count > 0 && (
+              <span style={{
+                fontSize: '0.65rem',
+                fontWeight: '700',
+                color: isActive ? '#f0c040' : 'rgba(255,255,255,0.6)',
+                minWidth: '0.8rem',
+                textAlign: 'center',
+              }}>
+                {count}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -37,6 +37,9 @@ interface GameState {
   error: string | null;
   // Chat
   chatMessages: ChatMessage[];
+  // Reactions
+  cardReactions: Record<string, Record<string, number>>;  // cardId -> { emoji: count }
+  lastReaction: { cardId: string; emoji: string; id: string } | null;
 }
 
 const initialState: GameState = {
@@ -66,6 +69,8 @@ const initialState: GameState = {
   sentencesSubmitted: false,
   error: null,
   chatMessages: [],
+  cardReactions: {},
+  lastReaction: null,
 };
 
 // --- Actions ---
@@ -99,6 +104,7 @@ type Action =
   | { type: 'ERROR'; message: string }
   | { type: 'CLEAR_ERROR' }
   | { type: 'ADD_CHAT_MESSAGE'; message: ChatMessage }
+  | { type: 'REACTION_RECEIVED'; reactions: Record<string, Record<string, number>>; cardId: string; emoji: string }
   | { type: 'RESET' }
   | { type: 'GO_TO_SCREEN'; screen: Screen };
 
@@ -174,6 +180,8 @@ function reducer(state: GameState, action: Action): GameState {
         revealedCards: [],
         votedCardId: null,
         roundResults: [],
+        cardReactions: {},
+        lastReaction: null,
       };
     case 'SELECT_CARD':
       return { ...state, selectedCardId: action.cardId };
@@ -221,6 +229,12 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, error: null };
     case 'ADD_CHAT_MESSAGE':
       return { ...state, chatMessages: [...state.chatMessages, action.message].slice(-200) };
+    case 'REACTION_RECEIVED':
+      return {
+        ...state,
+        cardReactions: action.reactions,
+        lastReaction: { cardId: action.cardId, emoji: action.emoji, id: `${Date.now()}-${Math.random()}` },
+      };
     case 'RESET':
       return { ...initialState, playerName: state.playerName, connected: state.connected };
     case 'GO_TO_SCREEN':
@@ -332,6 +346,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             text: data.text as string,
             timestamp: data.timestamp as number,
           },
+        });
+        break;
+      case 'reactionReceived':
+        dispatch({
+          type: 'REACTION_RECEIVED',
+          reactions: data.reactions as Record<string, Record<string, number>>,
+          cardId: data.cardId as string,
+          emoji: data.emoji as string,
         });
         break;
       case 'pong':

@@ -308,6 +308,7 @@ export class LobbyManager {
       playedCards: [],
       revealedCards: [],
       votes: {},
+      reactions: {},
     };
 
     gs.currentRound = round;
@@ -396,7 +397,7 @@ export class LobbyManager {
   }
 
   calculateRoundResults(lobbyId: string): {
-    results: { playerId: string; playerName: string; cardId: string; imageIndex: number; votes: number; pointsEarned: number }[];
+    results: { playerId: string; playerName: string; cardId: string; imageIndex: number; votes: number; pointsEarned: number; reactionBonus: number; reactions: Record<string, number> }[];
     scores: { playerId: string; playerName: string; score: number }[];
   } {
     const gs = this.getLobby(lobbyId);
@@ -409,11 +410,32 @@ export class LobbyManager {
       voteCounts[cardId] = (voteCounts[cardId] || 0) + 1;
     }
 
+    // Count total reactions per card and build per-emoji counts
+    const totalReactionsPerCard: Record<string, number> = {};
+    const emojiCountsPerCard: Record<string, Record<string, number>> = {};
+    for (const [cardId, playerReactions] of Object.entries(gs.currentRound.reactions)) {
+      const emojiCounts: Record<string, number> = {};
+      for (const emoji of Object.values(playerReactions)) {
+        emojiCounts[emoji] = (emojiCounts[emoji] || 0) + 1;
+      }
+      emojiCountsPerCard[cardId] = emojiCounts;
+      totalReactionsPerCard[cardId] = Object.values(playerReactions).length;
+    }
+
+    // Find max reaction count to determine bonus winner(s)
+    const maxReactions = Math.max(0, ...Object.values(totalReactionsPerCard));
+    const reactionWinnerCardIds = maxReactions > 0
+      ? Object.entries(totalReactionsPerCard)
+          .filter(([, count]) => count === maxReactions)
+          .map(([id]) => id)
+      : [];
+
     // Calculate points and build results
     const results = gs.currentRound.playedCards.map(({ playerId, card }) => {
       const player = gs.players.get(playerId)!;
       const votes = voteCounts[card.id] || 0;
-      const pointsEarned = votes; // 1 point per vote
+      const reactionBonus = reactionWinnerCardIds.includes(card.id) ? 1 : 0;
+      const pointsEarned = votes + reactionBonus;
       player.score += pointsEarned;
 
       return {
@@ -423,6 +445,8 @@ export class LobbyManager {
         imageIndex: card.imageIndex,
         votes,
         pointsEarned,
+        reactionBonus,
+        reactions: emojiCountsPerCard[card.id] || {},
       };
     });
 
@@ -434,6 +458,44 @@ export class LobbyManager {
       .sort((a, b) => b.score - a.score);
 
     return { results, scores };
+  }
+
+  sendReaction(lobbyId: string, playerId: string, cardId: string, emoji: string): {
+    cardId: string;
+    emoji: string;
+    allReactions: Record<string, Record<string, number>>;
+  } {
+    const gs = this.getLobby(lobbyId);
+    if (!gs) throw new Error('Lobby nicht gefunden');
+    if (!gs.currentRound) throw new Error('Keine aktive Runde');
+    if (gs.currentRound.phase !== RoundPhase.REVEALING) throw new Error('Reaktionen nur während der Abstimmung möglich');
+
+    const VALID_EMOJIS = ['🔥', '❤️', '😂', '👏'];
+    if (!VALID_EMOJIS.includes(emoji)) throw new Error('Ungültige Reaktion');
+
+    const validCard = gs.currentRound.playedCards.find(pc => pc.card.id === cardId);
+    if (!validCard) throw new Error('Ungültige Karte');
+
+    // Can't react to your own card
+    const ownCard = gs.currentRound.playedCards.find(pc => pc.playerId === playerId);
+    if (ownCard && ownCard.card.id === cardId) throw new Error('Du kannst nicht auf deine eigene Karte reagieren');
+
+    // Each player can react once per card (can change their reaction)
+    if (!gs.currentRound.reactions[cardId]) {
+      gs.currentRound.reactions[cardId] = {};
+    }
+    gs.currentRound.reactions[cardId][playerId] = emoji;
+
+    // Build aggregated emoji counts per card
+    const allReactions: Record<string, Record<string, number>> = {};
+    for (const [cId, playerReactions] of Object.entries(gs.currentRound.reactions)) {
+      allReactions[cId] = {};
+      for (const em of Object.values(playerReactions)) {
+        allReactions[cId][em] = (allReactions[cId][em] || 0) + 1;
+      }
+    }
+
+    return { cardId, emoji, allReactions };
   }
 
   drawCardsForAllPlayers(lobbyId: string): Map<string, Card | null> {
