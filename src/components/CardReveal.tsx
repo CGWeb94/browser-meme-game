@@ -4,7 +4,7 @@ import MemeCard from './MemeCard';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { getCardImageSrc } from '../utils/memeImage';
 
-const REACTION_EMOJIS = ['🔥', '❤️', '😂', '👏'];
+const REACTION_EMOJIS = ['🔥', '❤️', '😂', '👏', '💀'];
 
 interface FloatingReaction {
   id: string;

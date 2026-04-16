@@ -470,7 +470,7 @@ export class LobbyManager {
     if (!gs.currentRound) throw new Error('Keine aktive Runde');
     if (gs.currentRound.phase !== RoundPhase.REVEALING) throw new Error('Reaktionen nur während der Abstimmung möglich');
 
-    const VALID_EMOJIS = ['🔥', '❤️', '😂', '👏'];
+    const VALID_EMOJIS = ['🔥', '❤️', '😂', '👏', '💀'];
     if (!VALID_EMOJIS.includes(emoji)) throw new Error('Ungültige Reaktion');
 
     const validCard = gs.currentRound.playedCards.find(pc => pc.card.id === cardId);
